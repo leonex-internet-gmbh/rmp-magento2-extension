@@ -1,1 +1,4 @@
 .idea
+nbproject
+.DS_STORE
+/doc/*.docx
