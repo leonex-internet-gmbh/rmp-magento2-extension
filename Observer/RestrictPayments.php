@@ -11,12 +11,11 @@ use Magento\Payment\Model\MethodInterface;
 
 class RestrictPayments implements ObserverInterface
 {
-    protected $_connector;
+    protected $connector;
 
-    public function __construct(
-        Connector $connector
-    ) {
-        $this->_connector = $connector;
+    public function __construct(Connector $connector)
+    {
+        $this->connector = $connector;
     }
 
     public function execute(Observer $observer)
@@ -32,6 +31,6 @@ class RestrictPayments implements ObserverInterface
             return;
         }
 
-        $event->getResult()->setIsAvailable($this->_connector->checkPaymentPre($observer));
+        $event->getResult()->setIsAvailable($this->connector->checkPaymentPre($observer));
     }
 }

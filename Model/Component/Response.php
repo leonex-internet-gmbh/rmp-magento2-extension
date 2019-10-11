@@ -18,23 +18,23 @@ class Response
     protected $status;
 
     /** @var \stdClass */
-    protected $_payments;
+    protected $payments;
 
-    /** @var  mixed $_hash */
-    protected $_hash;
+    /** @var  mixed $hash */
+    protected $hash;
 
-    /** @var mixed $_response */
-    protected $_response;
+    /** @var mixed $response */
+    protected $response;
 
     /**
      * @param $response
      */
     public function __construct($response)
     {
-        $this->_response = $response;
-        $response = json_decode($this->_response);
+        $this->response = $response;
+        $response = json_decode($this->response);
         $this->status = $response->status;
-        $this->_payments = $response->payment_methods;
+        $this->payments = $response->payment_methods;
     }
 
     /**
@@ -49,8 +49,8 @@ class Response
      */
     public function filterPayment($payment)
     {
-        if (property_exists($this->_payments, $payment)) {
-            $obj = $this->_payments->$payment;
+        if (property_exists($this->payments, $payment)) {
+            $obj = $this->payments->$payment;
             if (!$obj->available) {
                 return false;
             } else {
@@ -66,7 +66,7 @@ class Response
      */
     public function setHash(Quote $quote)
     {
-        $this->_hash = $quote->getQuoteHash();
+        $this->hash = $quote->getQuoteHash();
     }
 
     /**
@@ -76,7 +76,7 @@ class Response
      */
     public function getHash()
     {
-        return $this->_hash;
+        return $this->hash;
     }
 
     /**
@@ -86,6 +86,6 @@ class Response
      */
     public function getCleanResponse()
     {
-        return $this->_response;
+        return $this->response;
     }
 }

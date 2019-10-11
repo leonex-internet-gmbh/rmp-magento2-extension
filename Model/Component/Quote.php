@@ -9,25 +9,40 @@ use Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
 
 class Quote
 {
-    /** @var \Magento\Quote\Model\Quote */
-    protected $_quote;
+    /**
+     * @var Session
+     */
+    protected $checkoutSession;
 
-    /** @var array */
-    protected $_normalizedQuote;
+    /**
+     * @var \Magento\Quote\Model\Quote
+     */
+    protected $quote;
 
-    /** @var \Magento\Quote\Model\Quote\Address */
-    protected $_billingAddress;
+    /**
+     * @var array
+     */
+    protected $normalizedQuote;
 
-    /** @var \Magento\Customer\Api\Data\CustomerInterface */
-    protected $_customer;
+    /**
+     * @var \Magento\Quote\Model\Quote\Address
+     */
+    protected $billingAddress;
 
-    /** @var CollectionFactoryInterface */
-    protected $_orderFactory;
+    /**
+     * @var \Magento\Customer\Api\Data\CustomerInterface
+     */
+    protected $customer;
 
-    const GENDER
-        = array(
-            1 => 'm', 2 => 'f'
-        );
+    /**
+     * @var CollectionFactoryInterface
+     */
+    protected $orderFactory;
+
+    const GENDER = [
+        1 => 'm',
+        2 => 'f'
+    ];
 
     /**
      * Quote constructor.
@@ -36,13 +51,14 @@ class Quote
      * @param CollectionFactoryInterface $orderFactory
      */
     public function __construct(
-        Session $checkoutSession, CollectionFactoryInterface $orderFactory
+        Session $checkoutSession,
+        CollectionFactoryInterface $orderFactory
     ) {
-        $this->_checkoutSession = $checkoutSession;
-        $this->_quote = $this->_checkoutSession->getQuote();
-        $this->_billingAddress = $this->_quote->getBillingAddress();
-        $this->_customer = $this->_quote->getCustomer();
-        $this->_orderFactory = $orderFactory;
+        $this->checkoutSession = $checkoutSession;
+        $this->quote = $this->checkoutSession->getQuote();
+        $this->billingAddress = $this->quote->getBillingAddress();
+        $this->customer = $this->quote->getCustomer();
+        $this->orderFactory = $orderFactory;
     }
 
     /**
@@ -52,7 +68,7 @@ class Quote
      */
     public function getNormalizedQuote()
     {
-        return $this->_normalizeQuote();
+        return $this->normalizeQuote();
     }
 
     /**
@@ -61,10 +77,16 @@ class Quote
      *
      * @return array
      */
-    protected function _normalizeQuote()
+    protected function normalizeQuote()
     {
         return ([
-            'customerSessionId' => $this->_getSessionID(), 'justifiableInterest' => Connector::JUSTIFIABLE_INTEREST_BUSINESS_INITIATION, 'consentClause' => true, 'billingAddress' => $this->_getBillingAddress(), 'quote' => $this->_getQuote(), 'customer' => $this->_getCustomerData(), 'orderHistory' => $this->_getOrderHistory()
+            'customerSessionId' => $this->getSessionId(),
+            'justifiableInterest' => Connector::JUSTIFIABLE_INTEREST_BUSINESS_INITIATION,
+            'consentClause' => true,
+            'billingAddress' => $this->_getBillingAddress(),
+            'quote' => $this->getQuote(),
+            'customer' => $this->getCustomerData(),
+            'orderHistory' => $this->getOrderHistory()
         ]);
     }
 
@@ -73,9 +95,9 @@ class Quote
      *
      * @return mixed
      */
-    protected function _getSessionID()
+    protected function getSessionId()
     {
-        return $this->_checkoutSession->getSessionId();
+        return $this->checkoutSession->getSessionId();
     }
 
     /**
@@ -85,9 +107,9 @@ class Quote
      */
     protected function _getBillingAddress()
     {
-        $billingAddress = $this->_billingAddress;
+        $billingAddress = $this->billingAddress;
         return [
-            'gender' => self::GENDER[$this->_customer->getGender()], 'lastName' => $billingAddress->getLastname(), 'firstName' => $billingAddress->getFirstname(), 'dateOfBirth' => $this->_customer->getDob(), 'birthName' => '', 'street' => $this->_getFirstStreet(), 'street2' => $this->_getSecondStreet(), 'zip' => $billingAddress->getPostcode(), 'city' => $billingAddress->getCity(), 'country' => $billingAddress->getCountryId(),
+            'gender' => self::GENDER[$this->customer->getGender()], 'lastName' => $billingAddress->getLastname(), 'firstName' => $billingAddress->getFirstname(), 'dateOfBirth' => $this->customer->getDob(), 'birthName' => '', 'street' => $this->getFirstStreet(), 'street2' => $this->getSecondStreet(), 'zip' => $billingAddress->getPostcode(), 'city' => $billingAddress->getCity(), 'country' => $billingAddress->getCountryId(),
         ];
     }
 
@@ -97,11 +119,12 @@ class Quote
      *
      * @return array
      */
-    protected function _getQuote()
+    protected function getQuote()
     {
-        return array(
-            'items' => $this->_getQuoteItems(), 'totalAmount' => $this->_quote->getGrandTotal(),
-        );
+        return [
+            'items' => $this->getQuoteItems(),
+            'totalAmount' => $this->quote->getGrandTotal(),
+        ];
     }
 
     /**
@@ -109,18 +132,22 @@ class Quote
      *
      * @return array
      */
-    protected function _getQuoteItems()
+    protected function getQuoteItems()
     {
         $quoteItems = array();
 
         /** @var Item $item */
-        foreach ($this->_quote->getAllItems() as $item) {
+        foreach ($this->quote->getAllItems() as $item) {
             if (is_null($item->getParentItemId())) {
-                $quoteItems[] = array(
-                    'sku' => $item->getSku(), 'quantity' => $item->getQty(), 'price' => (float)$item->getPriceInclTax(), 'rowTotal' => (float)$item->getRowTotal()
-                );
+                $quoteItems[] = [
+                    'sku' => $item->getSku(),
+                    'quantity' => $item->getQty(),
+                    'price' => (float)$item->getPriceInclTax(),
+                    'rowTotal' => (float)$item->getRowTotal()
+                ];
             }
         }
+
         return $quoteItems;
     }
 
@@ -129,12 +156,13 @@ class Quote
      *
      * @return array
      */
-    protected function _getCustomerData()
+    protected function getCustomerData()
     {
-        $customer = $this->_customer;
-        return array(
-            'number' => $customer->getId(), 'email' => $customer->getEmail()
-        );
+        $customer = $this->customer;
+        return [
+            'number' => $customer->getId(),
+            'email' => $customer->getEmail()
+        ];
     }
 
     /**
@@ -142,11 +170,14 @@ class Quote
      *
      * @return array
      */
-    protected function _getOrderHistory()
+    protected function getOrderHistory()
     {
-        return array(
-            'numberOfCanceledOrders' => $this->_getNumberOfCanceledOrders(), 'numberOfCompletedOrders' => $this->_getNumberOfCompletedOrders(), 'numberOfUnpaidOrders' => $this->_getNumberOfUnpaidOrders(), 'numberOfOutstandingOrders' => $this->_getNumberOfOutstandingOrders(),
-        );
+        return [
+            'numberOfCanceledOrders' => $this->getNumberOfCanceledOrders(),
+            'numberOfCompletedOrders' => $this->getNumberOfCompletedOrders(),
+            'numberOfUnpaidOrders' => $this->getNumberOfUnpaidOrders(),
+            'numberOfOutstandingOrders' => $this->getNumberOfOutstandingOrders(),
+        ];
     }
 
     /**
@@ -154,9 +185,9 @@ class Quote
      *
      * @return mixed
      */
-    protected function _getFirstStreet()
+    protected function getFirstStreet()
     {
-        return $this->_billingAddress->getStreet()[0];
+        return $this->billingAddress->getStreet()[0];
     }
 
     /**
@@ -164,10 +195,10 @@ class Quote
      *
      * @return string
      */
-    protected function _getSecondStreet()
+    protected function getSecondStreet()
     {
-        if (count($this->_billingAddress->getStreet()) > 1) {
-            return $this->_billingAddress->getStreet()[1];
+        if (count($this->billingAddress->getStreet()) > 1) {
+            return $this->billingAddress->getStreet()[1];
         }
         return '';
     }
@@ -179,17 +210,17 @@ class Quote
      */
     public function getQuoteHash()
     {
-        $billingAddress = $this->_billingAddress;
+        $billingAddress = $this->billingAddress;
 
-        $hash = $this->_getSessionID();
+        $hash = $this->getSessionId();
         $hash .= $billingAddress->getLastname();
         $hash .= $billingAddress->getFirstname();
-        $hash .= $this->_getFirstStreet();
+        $hash .= $this->getFirstStreet();
         $hash .= $billingAddress->getPostcode();
         $hash .= $billingAddress->getCity();
 
         /** @var Item $item */
-        foreach ($this->_quote->getAllItems() as $item) {
+        foreach ($this->quote->getAllItems() as $item) {
             if (is_null($item->getParentItemId())) {
                 $hash .= $item->getSku();
                 $hash .= $item->getQty();
@@ -217,9 +248,9 @@ class Quote
      *
      * @return int
      */
-    protected function _getNumberOfCanceledOrders()
+    protected function getNumberOfCanceledOrders()
     {
-        return $this->_getNumberOf([Order::STATE_CANCELED]);
+        return $this->getNumberOf([Order::STATE_CANCELED]);
     }
 
     /**
@@ -227,9 +258,9 @@ class Quote
      *
      * @return int
      */
-    protected function _getNumberOfCompletedOrders()
+    protected function getNumberOfCompletedOrders()
     {
-        return $this->_getNumberOf([Order::STATE_COMPLETE]);
+        return $this->getNumberOf([Order::STATE_COMPLETE]);
     }
 
     /**
@@ -237,9 +268,9 @@ class Quote
      *
      * @return int
      */
-    protected function _getNumberOfUnpaidOrders()
+    protected function getNumberOfUnpaidOrders()
     {
-        return $this->_getNumberOf([Order::STATE_PENDING_PAYMENT]);
+        return $this->getNumberOf([Order::STATE_PENDING_PAYMENT]);
     }
 
     /**
@@ -247,11 +278,14 @@ class Quote
      *
      * @return int
      */
-    protected function _getNumberOfOutstandingOrders()
+    protected function getNumberOfOutstandingOrders()
     {
-        return $this->_getNumberOf([
-                Order::STATE_PENDING_PAYMENT, Order::STATE_NEW, Order::STATE_HOLDED, Order::STATE_PROCESSING
-            ]);
+        return $this->getNumberOf([
+                Order::STATE_PENDING_PAYMENT,
+                Order::STATE_NEW,
+                Order::STATE_HOLDED,
+                Order::STATE_PROCESSING
+        ]);
     }
 
     /**
@@ -261,8 +295,12 @@ class Quote
      *
      * @return int
      */
-    protected function _getNumberOf(array $states)
+    protected function getNumberOf(array $states)
     {
-        return $this->_orderFactory->create($this->_customer->getId())->addFieldToSelect('entity_id')->addFieldToFilter('state', $states)->count();
+        return $this->orderFactory
+            ->create($this->customer->getId())
+            ->addFieldToSelect('entity_id')
+            ->addFieldToFilter('state', $states)
+            ->count();
     }
 }

@@ -23,10 +23,9 @@ class Api
     const METHOD_DELETE = 'DELETE';
 
     /** @var array|mixed */
-    protected $validMethods
-        = [
-            self::METHOD_POST
-        ];
+    protected $validMethods = [
+        self::METHOD_POST
+    ];
 
     /** @var string */
     protected $apiUrl;
@@ -61,7 +60,7 @@ class Api
      * @return Response
      * @throws \Exception
      */
-    protected function _call($method = self::METHOD_GET, $data = [], $params = [])
+    protected function call($method = self::METHOD_GET, $data = [], $params = [])
     {
         if (!in_array($method, $this->validMethods)) {
             throw new \Exception('Invalid HTTP-Methode: ' . $method);
@@ -78,7 +77,7 @@ class Api
         curl_setopt($this->cURL, CURLOPT_POSTFIELDS, $dataString);
         $result = curl_exec($this->cURL);
 
-        return $this->_prepareResponse($result);
+        return $this->prepareResponse($result);
     }
 
     /**
@@ -90,7 +89,7 @@ class Api
      */
     public function get($params = [])
     {
-        return $this->_call(self::METHOD_GET, [], $params);
+        return $this->call(self::METHOD_GET, [], $params);
     }
 
     /**
@@ -103,7 +102,7 @@ class Api
      */
     public function post($data = [], $params = [])
     {
-        return $this->_call(self::METHOD_POST, $data, $params);
+        return $this->call(self::METHOD_POST, $data, $params);
     }
 
     /**
@@ -116,7 +115,7 @@ class Api
      */
     public function put($data = [], $params = [])
     {
-        return $this->_call(self::METHOD_PUT, $data, $params);
+        return $this->call(self::METHOD_PUT, $data, $params);
     }
 
     /**
@@ -128,7 +127,7 @@ class Api
      */
     public function delete($params = [])
     {
-        return $this->_call(self::METHOD_DELETE, [], $params);
+        return $this->call(self::METHOD_DELETE, [], $params);
     }
 
     /**
@@ -138,10 +137,10 @@ class Api
      *
      * @return Response
      */
-    protected function _prepareResponse($result)
+    protected function prepareResponse($result)
     {
         /** @var Response $response */
-        $response = $this->_newResponse($result);
+        $response = $this->newResponse($result);
         return $response;
     }
 
@@ -150,7 +149,7 @@ class Api
      *
      * @return Response
      */
-    protected function _newResponse($result)
+    protected function newResponse($result)
     {
         return new Response($result);
     }

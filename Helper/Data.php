@@ -11,16 +11,24 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class Data extends AbstractHelper
 {
-    /** @var StoreManagerInterface */
-    protected $_storeManager;
-
-    /** @var ObjectManagerInterface */
-    protected $_objectManager;
-
-    /** @var State */
-    protected $_state;
 
     const XML_PATH = 'leonex_rmp/settings/';
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @var ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
+     * @var State
+     */
+    protected $state;
+
 
     /**
      * Data constructor.
@@ -31,11 +39,14 @@ class Data extends AbstractHelper
      * @param State                  $state
      */
     public function __construct(
-        Context $context, ObjectManagerInterface $objectManager, StoreManagerInterface $storeManager, State $state
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        StoreManagerInterface $storeManager,
+        State $state
     ) {
-        $this->_objectManager = $objectManager;
-        $this->_storeManager = $storeManager;
-        $this->_state = $state;
+        $this->objectManager = $objectManager;
+        $this->storeManager = $storeManager;
+        $this->state = $state;
         parent::__construct($context);
     }
 
@@ -47,7 +58,7 @@ class Data extends AbstractHelper
      *
      * @return mixed
      */
-    protected function _getConfigValue($code, $storeId = null)
+    protected function getConfigValue($code, $storeId = null)
     {
         return $this->scopeConfig->getValue(self::XML_PATH . $code, ScopeInterface::SCOPE_STORE, $storeId);
     }
@@ -60,7 +71,7 @@ class Data extends AbstractHelper
      */
     public function getTimeOfChecking()
     {
-        return $this->_getConfigValue('time_of_checking');
+        return $this->getConfigValue('time_of_checking');
     }
 
     /**
@@ -70,7 +81,7 @@ class Data extends AbstractHelper
      */
     public function getApiUrl()
     {
-        return $this->_getConfigValue('apiurl');
+        return $this->getConfigValue('apiurl');
     }
 
     /**
@@ -80,7 +91,7 @@ class Data extends AbstractHelper
      */
     public function getApiKey()
     {
-        return $this->_getConfigValue('apikey');
+        return $this->getConfigValue('apikey');
     }
 
     /**
@@ -90,7 +101,7 @@ class Data extends AbstractHelper
      */
     public function isActive()
     {
-        $return = $this->_getConfigValue('is_active');
+        $return = $this->getConfigValue('is_active');
         return $return;
     }
 
@@ -101,7 +112,6 @@ class Data extends AbstractHelper
      */
     public function isAdmin()
     {
-        $return = 'adminhtml' === $this->_state->getAreaCode();
-        return $return;
+        return 'adminhtml' === $this->state->getAreaCode();
     }
 }
