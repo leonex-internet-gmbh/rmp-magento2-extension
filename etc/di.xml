@@ -3,8 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Leonex\RiskManagementPlatform\Observer\RestrictPayments">
         <arguments>
-            <argument name="filterList" xsi:type="object">Leonex\RiskManagementPlatform\Model\Component\Connector
-            </argument>
+            <argument name="filterList" xsi:type="object">Leonex\RiskManagementPlatform\Model\Component\Connector</argument>
         </arguments>
     </type>
 </config>

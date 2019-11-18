@@ -73,22 +73,20 @@ class Connector
      */
     public function checkPaymentPre(Observer $observer)
     {
-        if ($this->_verifyInterest($observer)) {
-            if ($this->_justifyInterest($this->_quote) || true) {
-                $content = $this->_quote->getNormalizedQuote();
+        if ($this->_justifyInterest($this->_quote)) {
+            $content = $this->_quote->getNormalizedQuote();
 
-                $this->_api->setConfiguration([
-                    'api_url' => $this->_helper->getApiUrl(), 'api_key' => $this->_helper->getApiKey()
-                ]);
+            $this->_api->setConfiguration([
+                'api_url' => $this->_helper->getApiUrl(), 'api_key' => $this->_helper->getApiKey()
+            ]);
 
-                /** @var Response $response */
-                $response = $this->_api->post($content);
-                $response->setHash($this->_quote);
-                $this->_storeResponse($response);
-            }
-            $response = $this->_loadResponse($this->_quote->getQuoteHash());
-            return $response->filterPayment($this->_getPaymentMethod($observer));
+            /** @var Response $response */
+            $response = $this->_api->post($content);
+            $response->setHash($this->_quote);
+            $this->_storeResponse($response);
         }
+        $response = $this->_loadResponse($this->_quote->getQuoteHash());
+        return $response->filterPayment($this->_getPaymentMethod($observer));
     }
 
     /**
@@ -99,7 +97,7 @@ class Connector
      *
      * @return bool
      */
-    protected function _verifyInterest(Observer $observer)
+    public function verifyInterest(Observer $observer)
     {
         /** @var Data $helper */
         $helper = $this->_helper;

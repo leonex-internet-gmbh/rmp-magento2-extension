@@ -32,6 +32,8 @@ class RestrictPayments implements ObserverInterface
             return;
         }
 
-        $event->getResult()->setIsAvailable($this->_connector->checkPaymentPre($observer));
+        if ($this->_connector->verifyInterest($observer)) {
+            $event->getResult()->setIsAvailable($this->_connector->checkPaymentPre($observer));
+        }
     }
 }
