@@ -1,9 +1,23 @@
 <?php
-namespace Leonex\RiskManagementPlatform\Model\Processor;
 
-class Address
+namespace Leonex\RiskManagementPlatform\Plugin\Checkout\Block\Checkout;
+
+use Leonex\RiskManagementPlatform\Helper\Data;
+
+class LayoutProcessorPlugin
 {
-    public function afterProcess($subject, $jsLayout)
+    /**
+     * @var Data
+     */
+    protected $helper;
+
+    public function __construct(Data $helper)
+    {
+        $this->helper = $helper;
+    }
+
+
+    public function afterProcess(\Magento\Checkout\Block\Checkout\LayoutProcessor $subject, array $jsLayout)
     {
         $customAttributeCode = 'edob';
         $customField = [
@@ -13,17 +27,15 @@ class Address
                 'customScope' => 'shippingAddress.custom_attributes',
                 'customEntry' => null,
                 'template' => 'ui/form/field',
-                'elementTmpl' => 'ui/form/element/input',
-                'tooltip' => [
-                    'description' => 'this is what the field is for',
-                ],
+                'elementTmpl' => 'ui/form/element/date',
+
             ],
             'dataScope' => 'shippingAddress.custom_attributes' . '.' . $customAttributeCode,
-            'label' => 'Birthday',
+            'label' => __('Date of Birth'),
             'provider' => 'checkoutProvider',
-            'sortOrder' => 45,
+            'sortOrder' => 999,
             'validation' => [
-                'required-entry' => true
+                'required-entry' => $this->helper->isDobFieldRequired()
             ],
             'options' => [],
             'filterBy' => null,
@@ -31,7 +43,17 @@ class Address
             'visible' => true,
             'value' => '' // value field is used to set a default value of the attribute
         ];
+
+        $toolTipHtml = $this->helper->getDobFieldTooltip();
+        if ($toolTipHtml) {
+            $customField['tooltip'] = [
+                'description' => $toolTipHtml,
+            ];
+        }
+
+
         $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']['shippingAddress']['children']['shipping-address-fieldset']['children'][$customAttributeCode] = $customField;
+
         return $jsLayout;
     }
 }
