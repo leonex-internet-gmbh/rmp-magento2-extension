@@ -10,11 +10,6 @@ use Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
 class Quote
 {
     /**
-     * @var Session
-     */
-    protected $checkoutSession;
-
-    /**
      * @var \Magento\Quote\Model\Quote
      */
     protected $quote;
@@ -43,12 +38,23 @@ class Quote
         1 => 'm',
         2 => 'f'
     ];
+    /**
+     * @var \Magento\Quote\Model\Quote\Address
+     */
+    protected $shippingAddress;
+    /**
+     * @var Session
+     */
+    protected $checkoutSession;
 
     /**
      * Quote constructor.
      *
      * @param Session                    $checkoutSession
      * @param CollectionFactoryInterface $orderFactory
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function __construct(
         Session $checkoutSession,
@@ -57,6 +63,7 @@ class Quote
         $this->checkoutSession = $checkoutSession;
         $this->quote = $this->checkoutSession->getQuote();
         $this->billingAddress = $this->quote->getBillingAddress();
+        $this->shippingAddress = $this->quote->getShippingAddress();
         $this->customer = $this->quote->getCustomer();
         $this->orderFactory = $orderFactory;
     }
@@ -83,7 +90,7 @@ class Quote
             'customerSessionId' => $this->getSessionId(),
             'justifiableInterest' => Connector::JUSTIFIABLE_INTEREST_BUSINESS_INITIATION,
             'consentClause' => true,
-            'billingAddress' => $this->_getBillingAddress(),
+            'billingAddress' => $this->getBillingAddress(),
             'quote' => $this->getQuote(),
             'customer' => $this->getCustomerData(),
             'orderHistory' => $this->getOrderHistory()
@@ -105,11 +112,21 @@ class Quote
      *
      * @return array
      */
-    protected function _getBillingAddress()
+    protected function getBillingAddress()
     {
         $billingAddress = $this->billingAddress;
+        $gender = array_key_exists($this->customer->getGender(), self::GENDER) ? self::GENDER[$this->customer->getGender()] : null;
+
         return [
-            'gender' => self::GENDER[$this->customer->getGender()], 'lastName' => $billingAddress->getLastname(), 'firstName' => $billingAddress->getFirstname(), 'dateOfBirth' => $this->customer->getDob(), 'birthName' => '', 'street' => $this->getFirstStreet(), 'street2' => $this->getSecondStreet(), 'zip' => $billingAddress->getPostcode(), 'city' => $billingAddress->getCity(), 'country' => $billingAddress->getCountryId(),
+            'gender' => $gender,
+            'lastName' => $billingAddress->getLastname(),
+            'firstName' => $billingAddress->getFirstname(),
+            'dateOfBirth' => substr($this->quote->getCustomerDob(), 0, 10), // ?
+            'birthName' => '',
+            'street' => $this->getStreet(),
+            'zip' => $billingAddress->getPostcode(),
+            'city' => $billingAddress->getCity(),
+            'country' => strtolower($billingAddress->getCountryId()),
         ];
     }
 
@@ -123,7 +140,7 @@ class Quote
     {
         return [
             'items' => $this->getQuoteItems(),
-            'totalAmount' => $this->quote->getGrandTotal(),
+            'totalAmount' => $this->quote->getGrandTotal()
         ];
     }
 
@@ -142,12 +159,11 @@ class Quote
                 $quoteItems[] = [
                     'sku' => $item->getSku(),
                     'quantity' => $item->getQty(),
-                    'price' => (float)$item->getPriceInclTax(),
-                    'rowTotal' => (float)$item->getRowTotal()
+                    'price' => (float) $item->getPriceInclTax(),
+                    'rowTotal' => (float) $item->getRowTotal()
                 ];
             }
         }
-
         return $quoteItems;
     }
 
@@ -159,10 +175,10 @@ class Quote
     protected function getCustomerData()
     {
         $customer = $this->customer;
-        return [
+        return array(
             'number' => $customer->getId(),
-            'email' => $customer->getEmail()
-        ];
+            'email' => $this->billingAddress->getEmail(),
+        );
     }
 
     /**
@@ -185,22 +201,9 @@ class Quote
      *
      * @return mixed
      */
-    protected function getFirstStreet()
+    protected function getStreet()
     {
-        return $this->billingAddress->getStreet()[0];
-    }
-
-    /**
-     * Get the secondary Street from billing address
-     *
-     * @return string
-     */
-    protected function getSecondStreet()
-    {
-        if (count($this->billingAddress->getStreet()) > 1) {
-            return $this->billingAddress->getStreet()[1];
-        }
-        return '';
+        return $this->billingAddress->getStreetFull();
     }
 
     /**
@@ -215,7 +218,7 @@ class Quote
         $hash = $this->getSessionId();
         $hash .= $billingAddress->getLastname();
         $hash .= $billingAddress->getFirstname();
-        $hash .= $this->getFirstStreet();
+        $hash .= $this->getStreet();
         $hash .= $billingAddress->getPostcode();
         $hash .= $billingAddress->getCity();
 

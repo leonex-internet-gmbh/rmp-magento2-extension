@@ -5,7 +5,7 @@ namespace Leonex\RiskManagementPlatform\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\State;
-use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -20,31 +20,22 @@ class Data extends AbstractHelper
     protected $storeManager;
 
     /**
-     * @var ObjectManagerInterface
-     */
-    protected $objectManager;
-
-    /**
      * @var State
      */
     protected $state;
-
 
     /**
      * Data constructor.
      *
      * @param Context                $context
-     * @param ObjectManagerInterface $objectManager
      * @param StoreManagerInterface  $storeManager
      * @param State                  $state
      */
     public function __construct(
         Context $context,
-        ObjectManagerInterface $objectManager,
         StoreManagerInterface $storeManager,
         State $state
     ) {
-        $this->objectManager = $objectManager;
         $this->storeManager = $storeManager;
         $this->state = $state;
         parent::__construct($context);
@@ -61,6 +52,11 @@ class Data extends AbstractHelper
     protected function getConfigValue($code, $storeId = null)
     {
         return $this->scopeConfig->getValue(self::XML_PATH . $code, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    protected function getConfigFlag($code, $storeId = null)
+    {
+        return $this->scopeConfig->isSetFlag(self::XML_PATH . $code, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -109,9 +105,21 @@ class Data extends AbstractHelper
      * Check if admin context
      *
      * @return bool
+     * @throws LocalizedException
      */
     public function isAdmin()
     {
         return 'adminhtml' === $this->state->getAreaCode();
     }
+
+    public function getDobFieldTooltip()
+    {
+        return trim($this->getConfigValue('dob_tooltip'));
+    }
+
+    public function isDobFieldRequired()
+    {
+        return $this->getConfigFlag('is_dob_required');
+    }
+
 }

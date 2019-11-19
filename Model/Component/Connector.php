@@ -7,6 +7,7 @@ use Leonex\RiskManagementPlatform\Model\Component;
 use Leonex\RiskManagementPlatform\Model\Config\Source\CheckingTime;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Model\MethodInterface;
 
 class Connector
@@ -46,7 +47,9 @@ class Connector
      */
     const JUSTIFIABLE_INTEREST_ENFORCEMENT_CLAIM = 8;
 
-    /** Dt.: Konditionenanfrage (BDSG, §28a Abs. 2 Satz 4) (nur Finanzdienstleistungssektor) */
+    /**
+     * Dt.: Konditionenanfrage (BDSG, §28a Abs. 2 Satz 4) (nur Finanzdienstleistungssektor)
+     */
     const JUSTIFIABLE_INTEREST_TERMS_REQUEST = 9;
 
     /**
@@ -54,8 +57,8 @@ class Connector
      */
     protected $quote;
 
-    /** @var
-     * Data
+    /**
+     * @var Data
      */
     protected $helper;
 
@@ -70,23 +73,31 @@ class Connector
     protected $api;
 
     /**
+     * @var ResponseFactory
+     */
+    protected $responseFactory;
+
+    /**
      * Connector constructor.
      *
-     * @param Quote          $quote
-     * @param Data           $helper
-     * @param CacheInterface $cacheInterface
-     * @param Api            $api
+     * @param Quote           $quote
+     * @param Data            $helper
+     * @param CacheInterface  $cacheInterface
+     * @param Api             $api
+     * @param ResponseFactory $responseFactory
      */
     public function __construct(
         Component\Quote $quote,
         Data $helper,
         CacheInterface $cacheInterface,
-        Api $api
+        Api $api,
+        ResponseFactory $responseFactory
     ) {
         $this->quote = $quote;
         $this->helper = $helper;
         $this->cacheInterface = $cacheInterface;
         $this->api = $api;
+        $this->responseFactory = $responseFactory;
     }
 
     /**
@@ -98,23 +109,20 @@ class Connector
      */
     public function checkPaymentPre(Observer $observer)
     {
-        if ($this->verifyInterest($observer)) {
-            if ($this->justifyInterest($this->quote) || true) {
-                $content = $this->quote->getNormalizedQuote();
+        if ($this->justifyInterest($this->quote)) {
+            $content = $this->quote->getNormalizedQuote();
 
-                $this->api->setConfiguration([
-                    'api_url' => $this->helper->getApiUrl(), 'api_key' => $this->helper->getApiKey()
-                ]);
+            $this->api->setConfiguration([
+                'api_url' => $this->helper->getApiUrl(), 'api_key' => $this->helper->getApiKey()
+            ]);
 
-                /** @var Response $response */
-                $response = $this->api->post($content);
-                $response->setHash($this->quote);
-                $this->storeResponse($response);
-            }
-            $response = $this->loadResponse($this->quote->getQuoteHash());
-            return $response->filterPayment($this->getPaymentMethod($observer));
+            /** @var Response $response */
+            $response = $this->api->post($content);
+            $response->setHash($this->quote);
+            $this->storeResponse($response);
         }
-        return false;
+        $response = $this->loadResponse($this->quote->getQuoteHash());
+        return $response->filterPayment($this->getPaymentMethod($observer));
     }
 
     /**
@@ -124,8 +132,9 @@ class Connector
      * @param Observer $observer
      *
      * @return bool
+     * @throws LocalizedException
      */
-    protected function verifyInterest(Observer $observer)
+    public function verifyInterest(Observer $observer)
     {
         /** @var Data $helper */
         $helper = $this->helper;
@@ -203,6 +212,6 @@ class Connector
         $cache = $this->getCache();
         $response = $cache->load($hash);
 
-        return $response ? new Response($response) : false;
+        return $response ? $this->responseFactory->create(['jsonString' => $response]) : false;
     }
 }

@@ -5,8 +5,7 @@
             <label>Risk Management Platform</label>
             <tab>sales</tab>
             <resource>Leonex_RiskManagementPlatform::settings</resource>
-            <group id="settings" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0"
-                   showInStore="0">
+            <group id="settings" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Settings</label>
                 <field id="is_active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
                        showInStore="1">
@@ -16,8 +15,7 @@
                 <field id="apikey" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0"
                        showInStore="0">
                     <label>API-Key</label>
-                    <comment>You can find the API-Key in the RMP-Settings (Webshop -> General Settings -> API-Key).
-                    </comment>
+                    <comment>You can find the API-Key in the RMP-Settings (Webshop -> General Settings -> API-Key).</comment>
                 </field>
                 <field id="apiurl" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0"
                        showInStore="0">
@@ -27,6 +25,16 @@
                        showInWebsite="1" showInStore="1">
                     <label>Time of checking</label>
                     <source_model>Leonex\RiskManagementPlatform\Model\Config\Source\CheckingTime</source_model>
+                </field>
+                <field id="dob_tooltip" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>Tooltip Date of Birth</label>
+                </field>
+                <field id="is_dob_required" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Is Date of Birth required</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>A Risk Eavluation can not be done without the date of birth</comment>
                 </field>
             </group>
         </section>

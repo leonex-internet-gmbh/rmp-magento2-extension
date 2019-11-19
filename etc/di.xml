@@ -5,4 +5,7 @@
             <argument name="filterList" xsi:type="object">Leonex\RiskManagementPlatform\Model\Component\Connector</argument>
         </arguments>
     </type>
+    <type name="Magento\Checkout\Model\ShippingInformationManagement">
+        <plugin name="rmp_save_dob_in_shipping_address" type="Leonex\RiskManagementPlatform\Plugin\Checkout\Model\ShippingInformationManagementPlugin" sortOrder="10"/>
+    </type>
 </config>

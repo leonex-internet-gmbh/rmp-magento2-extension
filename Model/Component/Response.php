@@ -2,6 +2,9 @@
 
 namespace Leonex\RiskManagementPlatform\Model\Component;
 
+use Magento\Framework\DataObject;
+use Magento\Framework\Serialize\Serializer\Json;
+
 /**
  * Class Response
  *
@@ -12,29 +15,22 @@ namespace Leonex\RiskManagementPlatform\Model\Component;
  * @package LxRmp\Components\Data
  * @author  fseeger
  */
-class Response
+class Response extends DataObject
 {
-    /** @var string */
-    protected $status;
-
-    /** @var \stdClass */
-    protected $payments;
-
-    /** @var  mixed $hash */
-    protected $hash;
-
-    /** @var mixed $response */
-    protected $response;
 
     /**
-     * @param $response
+     * @var  mixed $hash
      */
-    public function __construct($response)
+    protected $hash;
+
+    protected $response;
+
+
+    public function __construct(Json $serializer, $jsonString)
     {
-        $this->response = $response;
-        $response = json_decode($this->response);
-        $this->status = $response->status;
-        $this->payments = $response->payment_methods;
+        $this->response = $jsonString;
+        $json = $serializer->unserialize($jsonString);
+        parent::__construct($json);
     }
 
     /**
@@ -43,20 +39,18 @@ class Response
      * When a payment is marked as unavailable (available != true) then remove this payment from the array.
      * A array with
      *
-     * @param $payment
+     * @param string $payment
      *
      * @return bool
      */
     public function filterPayment($payment)
     {
-        if (property_exists($this->payments, $payment)) {
-            $obj = $this->payments->$payment;
-            if (!$obj->available) {
-                return false;
-            } else {
-                return true;
-            }
+        // payment method is not in response
+        if (!$this->hasData('payment_methods/'.$payment)) {
+            return true;
         }
+
+        return (boolean) $this->getData('payment_methods/'.$payment.'/available');
     }
 
     /**
