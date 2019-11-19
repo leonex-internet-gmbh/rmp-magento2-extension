@@ -11,57 +11,92 @@ use Magento\Payment\Model\MethodInterface;
 
 class Connector
 {
-    /** Dt.: Kreditentscheidung */
+    /**
+     * Dt.: Kreditentscheidung
+     */
     const JUSTIFIABLE_INTEREST_LOAN_DECISION = 1;
 
-    /** Dt.: Geschäftsanbahnung */
+    /**
+     * Dt.: Geschäftsanbahnung
+     */
     const JUSTIFIABLE_INTEREST_BUSINESS_INITIATION = 3;
 
-    /** Dt.: Forderung */
+    /**
+     * Dt.: Forderung
+     */
     const JUSTIFIABLE_INTEREST_CLAIM = 4;
 
-    /** Dt.: Versicherungsvertrag */
+    /**
+     * Dt.: Versicherungsvertrag
+     */
     const JUSTIFIABLE_INTEREST_INSURANCE_CONTRACT = 5;
 
-    /** Dt.: Beteiligungsverhältnisse */
+    /**
+     * Dt.: Beteiligungsverhältnisse
+     */
     const JUSTIFIABLE_INTEREST_SHARING_STATUS = 6;
 
-    /** Dt.: Überfällige Forderung */
+    /**
+     * Dt.: Überfällige Forderung
+     */
     const JUSTIFIABLE_INTEREST_OVERDUE_CLAIM = 7;
 
-    /** Dt.: Vollstreckungsauskunft */
+    /**
+     * Dt.: Vollstreckungsauskunft
+     */
     const JUSTIFIABLE_INTEREST_ENFORCEMENT_CLAIM = 8;
 
-    /** Dt.: Konditionenanfrage (BDSG, §28a Abs. 2 Satz 4) (nur Finanzdienstleistungssektor) */
+    /**
+     * Dt.: Konditionenanfrage (BDSG, §28a Abs. 2 Satz 4) (nur Finanzdienstleistungssektor)
+     */
     const JUSTIFIABLE_INTEREST_TERMS_REQUEST = 9;
 
-    /** @var Quote */
-    protected $_quote;
+    /**
+     * @var Quote
+     */
+    protected $quote;
 
-    /** @var Data */
-    protected $_helper;
+    /**
+     * @var Data
+     */
+    protected $helper;
 
-    /** @var CacheInterface */
-    protected $_cacheInterface;
+    /**
+     * @var CacheInterface
+     */
+    protected $cacheInterface;
 
-    /** @var Api */
-    protected $_api;
+    /**
+     * @var Api
+     */
+    protected $api;
+
+    /**
+     * @var ResponseFactory
+     */
+    protected $responseFactory;
 
     /**
      * Connector constructor.
      *
-     * @param Quote          $quote
-     * @param Data           $helper
-     * @param CacheInterface $cacheInterface
-     * @param Api            $api
+     * @param Quote           $quote
+     * @param Data            $helper
+     * @param CacheInterface  $cacheInterface
+     * @param Api             $api
+     * @param ResponseFactory $responseFactory
      */
     public function __construct(
-        Component\Quote $quote, Data $helper, CacheInterface $cacheInterface, Api $api
+        Component\Quote $quote,
+        Data $helper,
+        CacheInterface $cacheInterface,
+        Api $api,
+        ResponseFactory $responseFactory
     ) {
-        $this->_quote = $quote;
-        $this->_helper = $helper;
-        $this->_cacheInterface = $cacheInterface;
-        $this->_api = $api;
+        $this->quote = $quote;
+        $this->helper = $helper;
+        $this->cacheInterface = $cacheInterface;
+        $this->api = $api;
+        $this->responseFactory = $responseFactory;
     }
 
     /**
@@ -73,22 +108,20 @@ class Connector
      */
     public function checkPaymentPre(Observer $observer)
     {
-        if ($this->_verifyInterest($observer)) {
-            if ($this->_justifyInterest($this->_quote) || true) {
-                $content = $this->_quote->getNormalizedQuote();
+        if ($this->justifyInterest($this->quote)) {
+            $content = $this->quote->getNormalizedQuote();
 
-                $this->_api->setConfiguration([
-                    'api_url' => $this->_helper->getApiUrl(), 'api_key' => $this->_helper->getApiKey()
-                ]);
+            $this->api->setConfiguration([
+                'api_url' => $this->helper->getApiUrl(), 'api_key' => $this->helper->getApiKey()
+            ]);
 
-                /** @var Response $response */
-                $response = $this->_api->post($content);
-                $response->setHash($this->_quote);
-                $this->_storeResponse($response);
-            }
-            $response = $this->_loadResponse($this->_quote->getQuoteHash());
-            return $response->filterPayment($this->_getPaymentMethod($observer));
+            /** @var Response $response */
+            $response = $this->api->post($content);
+            $response->setHash($this->quote);
+            $this->storeResponse($response);
         }
+        $response = $this->loadResponse($this->quote->getQuoteHash());
+        return $response->filterPayment($this->getPaymentMethod($observer));
     }
 
     /**
@@ -99,10 +132,10 @@ class Connector
      *
      * @return bool
      */
-    protected function _verifyInterest(Observer $observer)
+    public function verifyInterest(Observer $observer)
     {
         /** @var Data $helper */
-        $helper = $this->_helper;
+        $helper = $this->helper;
         $event = $observer->getEvent();
 
         if (!$helper->isAdmin() && $helper->isActive()) {
@@ -126,9 +159,9 @@ class Connector
      *
      * @return bool
      */
-    protected function _justifyInterest(Quote $quote)
+    protected function justifyInterest(Quote $quote)
     {
-        return !(bool)$this->_loadResponse($quote->getQuoteHash());
+        return !(bool)$this->loadResponse($quote->getQuoteHash());
     }
 
     /**
@@ -136,9 +169,9 @@ class Connector
      *
      * @return CacheInterface
      */
-    protected function _getCache()
+    protected function getCache()
     {
-        return $this->_cacheInterface;
+        return $this->cacheInterface;
     }
 
     /**
@@ -148,7 +181,7 @@ class Connector
      *
      * @return mixed
      */
-    protected function _getPaymentMethod(Observer $observer)
+    protected function getPaymentMethod(Observer $observer)
     {
         $event = $observer->getEvent();
         return $event->getMethodInstance()->getCode();
@@ -159,9 +192,9 @@ class Connector
      *
      * @param Response $response
      */
-    protected function _storeResponse(Response $response)
+    protected function storeResponse(Response $response)
     {
-        $cache = $this->_getCache();
+        $cache = $this->getCache();
         $cache->save($response->getCleanResponse(), $response->getHash(), array(), 60 * 60 * 2);
     }
 
@@ -172,11 +205,11 @@ class Connector
      *
      * @return bool|Response
      */
-    protected function _loadResponse($hash)
+    protected function loadResponse($hash)
     {
-        $cache = $this->_getCache();
+        $cache = $this->getCache();
         $response = $cache->load($hash);
 
-        return $response ? new Response($response) : false;
+        return $response ? $this->responseFactory->create(['jsonString' => $response]) : false;
     }
 }

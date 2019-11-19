@@ -2,6 +2,9 @@
 
 namespace Leonex\RiskManagementPlatform\Model\Component;
 
+use Magento\Framework\DataObject;
+use Magento\Framework\Serialize\Serializer\Json;
+
 /**
  * Class Response
  *
@@ -12,29 +15,22 @@ namespace Leonex\RiskManagementPlatform\Model\Component;
  * @package LxRmp\Components\Data
  * @author  fseeger
  */
-class Response
+class Response extends DataObject
 {
-    /** @var string */
-    protected $status;
-
-    /** @var \stdClass */
-    protected $_payments;
-
-    /** @var  mixed $_hash */
-    protected $_hash;
-
-    /** @var mixed $_response */
-    protected $_response;
 
     /**
-     * @param $response
+     * @var  mixed $hash
      */
-    public function __construct($response)
+    protected $hash;
+
+    protected $response;
+
+
+    public function __construct(Json $serializer, $jsonString)
     {
-        $this->_response = $response;
-        $response = json_decode($this->_response);
-        $this->status = $response->status;
-        $this->_payments = $response->payment_methods;
+        $this->response = $jsonString;
+        $json = $serializer->unserialize($jsonString);
+        parent::__construct($json);
     }
 
     /**
@@ -43,20 +39,18 @@ class Response
      * When a payment is marked as unavailable (available != true) then remove this payment from the array.
      * A array with
      *
-     * @param $payment
+     * @param string $payment
      *
      * @return bool
      */
     public function filterPayment($payment)
     {
-        if (property_exists($this->_payments, $payment)) {
-            $obj = $this->_payments->$payment;
-            if (!$obj->available) {
-                return false;
-            } else {
-                return true;
-            }
+        // payment method is not in response
+        if (!$this->hasData('payment_methods/'.$payment)) {
+            return true;
         }
+
+        return (boolean) $this->getData('payment_methods/'.$payment.'/available');
     }
 
     /**
@@ -66,7 +60,7 @@ class Response
      */
     public function setHash(Quote $quote)
     {
-        $this->_hash = $quote->getQuoteHash();
+        $this->hash = $quote->getQuoteHash();
     }
 
     /**
@@ -76,7 +70,7 @@ class Response
      */
     public function getHash()
     {
-        return $this->_hash;
+        return $this->hash;
     }
 
     /**
@@ -86,6 +80,6 @@ class Response
      */
     public function getCleanResponse()
     {
-        return $this->_response;
+        return $this->response;
     }
 }

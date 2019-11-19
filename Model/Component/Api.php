@@ -10,29 +10,52 @@ namespace Leonex\RiskManagementPlatform\Model\Component;
  */
 class Api
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     const METHOD_GET = 'GET';
 
-    /** @var string */
+    /**
+     * @var string
+     */
     const METHOD_PUT = 'PUT';
 
-    /** @var string */
+    /**
+     * @var string
+     */
     const METHOD_POST = 'POST';
 
-    /** @var string */
+    /**
+     * @var string
+     */
     const METHOD_DELETE = 'DELETE';
 
-    /** @var array|mixed */
-    protected $validMethods
-        = [
-            self::METHOD_POST
-        ];
+    /**
+     * @var array|mixed
+     */
+    protected $validMethods = [
+        self::METHOD_POST
+    ];
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $apiUrl;
 
-    /** @var resource */
+    /**
+     * @var resource
+     */
     protected $cURL;
+
+    /**
+     * @var ResponseFactory
+     */
+    protected $responseFactory;
+
+    public function __construct(ResponseFactory $responseFactory)
+    {
+        $this->responseFactory = $responseFactory;
+    }
 
     /**
      * Set cURL configuration
@@ -87,6 +110,7 @@ class Api
      * @param array $params
      *
      * @return Response
+     * @throws \Exception
      */
     public function get($params = [])
     {
@@ -100,6 +124,7 @@ class Api
      * @param array $params
      *
      * @return Response
+     * @throws \Exception
      */
     public function post($data = [], $params = [])
     {
@@ -113,6 +138,7 @@ class Api
      * @param array $params
      *
      * @return Response
+     * @throws \Exception
      */
     public function put($data = [], $params = [])
     {
@@ -125,6 +151,7 @@ class Api
      * @param array $params
      *
      * @return Response
+     * @throws \Exception
      */
     public function delete($params = [])
     {
@@ -152,6 +179,8 @@ class Api
      */
     protected function _newResponse($result)
     {
-        return new Response($result);
+        $response = $this->responseFactory->create(['jsonString' => $result]);
+        return $response;
     }
+
 }
