@@ -16,7 +16,10 @@ class CheckingTime implements ArrayInterface
      */
     public function toOptionArray()
     {
-        return [['value' => self::CHECKING_TIME_PRE, 'label' => __('Before payment method selection')], ['value' => self::CHECKING_TIME_POST, 'label' => __('After payment method selection')]];
+        return [
+            ['value' => self::CHECKING_TIME_PRE, 'label' => __('Before payment method selection')],
+            ['value' => self::CHECKING_TIME_POST, 'label' => __('After payment method selection')]
+        ];
     }
 
     /**
@@ -26,6 +29,9 @@ class CheckingTime implements ArrayInterface
      */
     public function toArray()
     {
-        return [self::CHECKING_TIME_PRE => __('Before payment method selection'), self::CHECKING_TIME_POST => __('After payment method selection')];
+        return [
+            self::CHECKING_TIME_PRE => __('Before payment method selection'),
+            self::CHECKING_TIME_POST => __('After payment method selection')
+        ];
     }
 }

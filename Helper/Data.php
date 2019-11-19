@@ -6,7 +6,6 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -55,7 +54,7 @@ class Data extends AbstractHelper
         return $this->scopeConfig->getValue(self::XML_PATH . $code, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    protected function _getConfigFlag($code, $storeId = null)
+    protected function getConfigFlag($code, $storeId = null)
     {
         return $this->scopeConfig->isSetFlag(self::XML_PATH . $code, ScopeInterface::SCOPE_STORE, $storeId);
     }
@@ -110,8 +109,7 @@ class Data extends AbstractHelper
      */
     public function isAdmin()
     {
-        $return = 'adminhtml' === $this->state->getAreaCode();
-        return $return;
+        return 'adminhtml' === $this->state->getAreaCode();
     }
 
     public function getDobFieldTooltip()
@@ -121,7 +119,7 @@ class Data extends AbstractHelper
 
     public function isDobFieldRequired()
     {
-        return $this->_getConfigFlag('is_dob_required');
+        return $this->getConfigFlag('is_dob_required');
     }
 
 }

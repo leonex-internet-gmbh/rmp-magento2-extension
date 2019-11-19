@@ -57,7 +57,8 @@ class Quote
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function __construct(
-        Session $checkoutSession, CollectionFactoryInterface $orderFactory
+        Session $checkoutSession,
+        CollectionFactoryInterface $orderFactory
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->quote = $this->checkoutSession->getQuote();
@@ -283,7 +284,10 @@ class Quote
     protected function getNumberOfOutstandingOrders()
     {
         return $this->getNumberOf([
-            Order::STATE_PENDING_PAYMENT, Order::STATE_NEW, Order::STATE_HOLDED, Order::STATE_PROCESSING
+                Order::STATE_PENDING_PAYMENT,
+                Order::STATE_NEW,
+                Order::STATE_HOLDED,
+                Order::STATE_PROCESSING
         ]);
     }
 
@@ -296,6 +300,10 @@ class Quote
      */
     protected function getNumberOf(array $states)
     {
-        return $this->orderFactory->create($this->customer->getId())->addFieldToSelect('entity_id')->addFieldToFilter('state', $states)->count();
+        return $this->orderFactory
+            ->create($this->customer->getId())
+            ->addFieldToSelect('entity_id')
+            ->addFieldToFilter('state', $states)
+            ->count();
     }
 }

@@ -7,6 +7,7 @@ use Leonex\RiskManagementPlatform\Model\Component;
 use Leonex\RiskManagementPlatform\Model\Config\Source\CheckingTime;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Model\MethodInterface;
 
 class Connector
@@ -131,6 +132,7 @@ class Connector
      * @param Observer $observer
      *
      * @return bool
+     * @throws LocalizedException
      */
     public function verifyInterest(Observer $observer)
     {
