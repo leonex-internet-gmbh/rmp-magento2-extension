@@ -3,6 +3,7 @@
 namespace Leonex\RiskManagementPlatform\Plugin\Checkout\Block\Checkout;
 
 use Leonex\RiskManagementPlatform\Helper\Data;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 class LayoutProcessorPlugin
 {
@@ -10,10 +11,15 @@ class LayoutProcessorPlugin
      * @var Data
      */
     protected $helper;
+    /**
+     * @var TimezoneInterface
+     */
+    protected $localeDate;
 
-    public function __construct(Data $helper)
+    public function __construct(Data $helper, TimezoneInterface $localeDate)
     {
         $this->helper = $helper;
+        $this->localeDate = $localeDate;
     }
 
 
@@ -28,7 +34,11 @@ class LayoutProcessorPlugin
                 'customEntry' => null,
                 'template' => 'ui/form/field',
                 'elementTmpl' => 'ui/form/element/date',
-
+                'options' => [
+                    'dateFormat'  => $this->localeDate->getDateFormatWithLongYear(),
+                    'changeMonth' => true,
+                    'changeYear' => true,
+                ],
             ],
             'dataScope' => 'shippingAddress.custom_attributes' . '.' . $customAttributeCode,
             'label' => __('Date of Birth'),

@@ -15,16 +15,23 @@ namespace Leonex\RiskManagementPlatform\Plugin\Checkout\Model;
 use Magento\Checkout\Api\Data\ShippingInformationInterface;
 use Magento\Checkout\Model\ShippingInformationManagement;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Quote\Model\QuoteRepository;
 
 class ShippingInformationManagementPlugin
 {
     protected $quoteRepository;
+    /**
+     * @var TimezoneInterface
+     */
+    protected $localeDate;
 
     public function __construct(
-        QuoteRepository $quoteRepository
+        QuoteRepository $quoteRepository,
+        TimezoneInterface $localeDate
     ) {
         $this->quoteRepository = $quoteRepository;
+        $this->localeDate = $localeDate;
     }
 
     /**
@@ -42,7 +49,7 @@ class ShippingInformationManagementPlugin
         try {
             $quote = $this->quoteRepository->getActive($cartId);
             if ($dob) {
-                $quote->setCustomerDob($dob);
+                $quote->setCustomerDob($this->localeDate->date($dob)->format('d-m-Y'));
             }
         } catch (NoSuchEntityException $e) {
 
