@@ -3,4 +3,7 @@
     <event name="payment_method_is_active">
         <observer name="leonex_risk_management" instance="Leonex\RiskManagementPlatform\Observer\RestrictPayments"/>
     </event>
+    <event name="sales_quote_payment_import_data_before">
+        <observer name="leonex_risk_management_post_payment_method" instance="Leonex\RiskManagementPlatform\Observer\RestrictPayments"/>
+    </event>
 </config>
