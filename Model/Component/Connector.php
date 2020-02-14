@@ -141,13 +141,13 @@ class Connector
         $event = $observer->getEvent();
 
         if (!$helper->isAdmin() && $helper->isActive()) {
-            if ($helper->getTimeOfChecking() == CheckingTime::CHECKING_TIME_PRE) {
-                if ($event->getMethodInstance() instanceof MethodInterface) {
-                    $result = $event->getResult();
-                    if ($result->getData('is_available')) {
-                        return true;
-                    }
+            $method = $event->getMethodInstance();
+            if ($method instanceof MethodInterface) {
+                $result = $event->getResult();
+                if ($result->getData('is_available')) {
+                    return true;
                 }
+
             }
         }
         return false;
