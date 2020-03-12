@@ -38,6 +38,8 @@ class LayoutProcessorPlugin
                     'dateFormat'  => $this->localeDate->getDateFormatWithLongYear(),
                     'changeMonth' => true,
                     'changeYear' => true,
+                    'yearRange' => '-99:-1',
+                    'defaultDate' => '-20y'
                 ],
             ],
             'dataScope' => 'shippingAddress.custom_attributes' . '.' . $customAttributeCode,
