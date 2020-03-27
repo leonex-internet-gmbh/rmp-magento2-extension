@@ -9,32 +9,34 @@
                 <label>Settings</label>
                 <field id="is_active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
                        showInStore="1">
-                    <label>Risk management Enabled</label>
+                    <label>Score rating enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="apikey" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
                        showInStore="1">
-                    <label>API-Key</label>
-                    <comment>You can find the API-Key in the RMP-Settings (Webshop -> General Settings -> API-Key).</comment>
+                    <label>API Key</label>
+                    <comment>You can find the API Key in the RMP settings (Webshop -> General Settings -> API Key).</comment>
                 </field>
                 <field id="apiurl" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
                        showInStore="1">
-                    <label>API-Url</label>
+                    <label>API URL</label>
+                    <validate>required-entry</validate>
+                    <comment>Don't change unless asked to do so.</comment>
                 </field>
                 <field id="time_of_checking" translate="label" type="select" sortOrder="40" showInDefault="1"
                        showInWebsite="1" showInStore="1">
                     <label>Time of checking</label>
                     <source_model>Leonex\RiskManagementPlatform\Model\Config\Source\CheckingTime</source_model>
                 </field>
-                <field id="dob_tooltip" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1"
-                       showInStore="1">
-                    <label>Tooltip Date of Birth</label>
-                </field>
-                <field id="is_dob_required" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                <field id="is_dob_required" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>Is Date of Birth required</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>A Risk Eavluation can not be done without the date of birth</comment>
+                    <comment>A risk evaluation can not be done without the date of birth.</comment>
+                </field>
+                <field id="dob_tooltip" translate="label" type="textarea" sortOrder="60" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Tooltip Date of Birth</label>
                 </field>
             </group>
         </section>
