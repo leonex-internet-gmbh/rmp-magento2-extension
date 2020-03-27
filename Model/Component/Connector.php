@@ -109,7 +109,9 @@ class Connector
      */
     public function checkPaymentPre(Observer $observer)
     {
-        if (!$this->hasCachedResponse($this->quote)) {
+        if ($this->hasCachedResponse($this->quote)) {
+            $response = $this->loadResponse($this->quote->getQuoteHash());
+        } else {
             $content = $this->quote->getNormalizedQuote();
 
             $this->api->setConfiguration([
@@ -121,7 +123,7 @@ class Connector
             $response->setHash($this->quote);
             $this->storeResponse($response);
         }
-        $response = $this->loadResponse($this->quote->getQuoteHash());
+        
         return $response->filterPayment($this->getPaymentMethod($observer));
     }
 
@@ -164,7 +166,7 @@ class Connector
      */
     protected function hasCachedResponse(Quote $quote): bool
     {
-        return !(bool)$this->loadResponse($quote->getQuoteHash());
+        return (bool)$this->loadResponse($quote->getQuoteHash());
     }
 
     /**

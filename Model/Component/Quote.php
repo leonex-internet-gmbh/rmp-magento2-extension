@@ -99,25 +99,15 @@ class Quote
      */
     protected function normalizeQuote()
     {
-        return ([
-            'customerSessionId' => $this->getSessionId(),
+        return [
+            'customerSessionId' => $this->quote->getId(),
             'justifiableInterest' => Connector::JUSTIFIABLE_INTEREST_BUSINESS_INITIATION,
             'consentClause' => true,
             'billingAddress' => $this->getBillingAddress(),
             'quote' => $this->getQuote(),
             'customer' => $this->getCustomerData(),
             'orderHistory' => $this->getOrderHistory()
-        ]);
-    }
-
-    /**
-     * Return the user session identifier.
-     *
-     * @return mixed
-     */
-    protected function getSessionId()
-    {
-        return $this->checkoutSession->getSessionId();
+        ];
     }
 
     /**
@@ -226,24 +216,8 @@ class Quote
      */
     public function getQuoteHash()
     {
-        $billingAddress = $this->billingAddress;
-
-        $hash = $this->getSessionId();
-        $hash .= $billingAddress->getLastname();
-        $hash .= $billingAddress->getFirstname();
-        $hash .= $this->getStreet();
-        $hash .= $billingAddress->getPostcode();
-        $hash .= $billingAddress->getCity();
-
-        /** @var Item $item */
-        foreach ($this->quote->getAllItems() as $item) {
-            if (is_null($item->getParentItemId())) {
-                $hash .= $item->getSku();
-                $hash .= $item->getQty();
-            }
-        }
-
-        return hash('sha256', $hash);
+        $json = \json_encode($this->normalizeQuote());
+        return hash('sha256', $json);
     }
 
     /**
