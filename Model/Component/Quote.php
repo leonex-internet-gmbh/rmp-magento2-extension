@@ -69,6 +69,19 @@ class Quote
     }
 
     /**
+     * Check whether a billing address has been provided
+     * @return bool
+     */
+    public function isAddressProvided(): bool
+    {
+        $billingAddress = $this->billingAddress;
+
+        return $billingAddress->getCompany()
+            || $billingAddress->getLastname()
+            || $billingAddress->getFirstname();
+    }
+
+    /**
      * Return the normalized quote and trigger a filter event.
      *
      * @return mixed

@@ -138,15 +138,16 @@ class Connector
     {
         /** @var Data $helper */
         $helper = $this->helper;
-        $event = $observer->getEvent();
+        if ($helper->isAdmin() || !$helper->isActive() || !$this->quote->isAddressProvided()) {
+            return false;
+        }
 
-        if (!$helper->isAdmin() && $helper->isActive()) {
-            $method = $event->getMethodInstance();
-            if ($method instanceof MethodInterface) {
-                $result = $event->getResult();
-                if ($result->getData('is_available')) {
-                    return true;
-                }
+        $event = $observer->getEvent();
+        $method = $event->getMethodInstance();
+        if ($method instanceof MethodInterface) {
+            $result = $event->getResult();
+            if ($result->getData('is_available')) {
+                return true;
             }
         }
 
@@ -161,7 +162,7 @@ class Connector
      *
      * @return bool
      */
-    protected function hasCachedResponse(Quote $quote)
+    protected function hasCachedResponse(Quote $quote): bool
     {
         return !(bool)$this->loadResponse($quote->getQuoteHash());
     }
