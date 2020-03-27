@@ -70,6 +70,7 @@ class Api
         curl_setopt($this->cURL, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->cURL, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($this->cURL, CURLOPT_HTTPHEADER, array(
+            'User-Agent: Magento 2 RMP Connector',
             'X-AUTH-KEY: ' . $array['api_key'], 'Content-Type: application/json; charset=utf-8',
         ));
     }
