@@ -109,7 +109,7 @@ class Connector
      */
     public function checkPaymentPre(Observer $observer)
     {
-        if ($this->hasCachedResponse($this->quote)) {
+        if (!$this->hasCachedResponse($this->quote)) {
             $content = $this->quote->getNormalizedQuote();
 
             $this->api->setConfiguration([
@@ -147,9 +147,9 @@ class Connector
                 if ($result->getData('is_available')) {
                     return true;
                 }
-
             }
         }
+
         return false;
     }
 
