@@ -64,7 +64,7 @@ class RestrictPayments implements ObserverInterface
         }
         // pre check can also be applied in the post check, since the result is likely already cached
 
-        if ($this->connector->verifyInterest($observer)) {
+        if ($this->connector->isCheckNeeded($observer)) {
             $event->getResult()->setIsAvailable($this->connector->checkPaymentPre($observer));
         }
     }

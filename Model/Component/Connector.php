@@ -109,7 +109,7 @@ class Connector
      */
     public function checkPaymentPre(Observer $observer)
     {
-        if ($this->justifyInterest($this->quote)) {
+        if ($this->hasCachedResponse($this->quote)) {
             $content = $this->quote->getNormalizedQuote();
 
             $this->api->setConfiguration([
@@ -134,7 +134,7 @@ class Connector
      * @return bool
      * @throws LocalizedException
      */
-    public function verifyInterest(Observer $observer)
+    public function isCheckNeeded(Observer $observer)
     {
         /** @var Data $helper */
         $helper = $this->helper;
@@ -161,7 +161,7 @@ class Connector
      *
      * @return bool
      */
-    protected function justifyInterest(Quote $quote)
+    protected function hasCachedResponse(Quote $quote)
     {
         return !(bool)$this->loadResponse($quote->getQuoteHash());
     }
