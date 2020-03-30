@@ -45,6 +45,13 @@ class ShippingInformationManagementPlugin
         ShippingInformationInterface $addressInformation
     ) {
         $extAttributes = $addressInformation->getExtensionAttributes();
+
+        // If the extension attribute 'edob' is not sent by the frontend and there are no other
+        // extension attributes, $extAttributes will be null.
+        if (!$extAttributes) {
+            return;
+        }
+
         $dob = $extAttributes->getEdob();
         try {
             $quote = $this->quoteRepository->getActive($cartId);
