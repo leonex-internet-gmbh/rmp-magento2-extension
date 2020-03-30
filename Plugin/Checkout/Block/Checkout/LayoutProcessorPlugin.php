@@ -64,7 +64,9 @@ class LayoutProcessorPlugin
         }
 
 
-        $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']['shippingAddress']['children']['shipping-address-fieldset']['children'][$customAttributeCode] = $customField;
+        $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']
+            ['children']['shippingAddress']['children']['shipping-address-fieldset']
+            ['children'][$customAttributeCode] = $customField;
 
         return $jsLayout;
     }
