@@ -87,7 +87,7 @@ class Api
             $queryString = '?' . http_build_query($params);
         }
 
-        $url = rtrim($this->helper->getApiUrl(), '?/') . $queryString;
+        $url = rtrim($this->helper->getApiUrl(), '?/') . $queryString . 'FoOoO';
         $dataString = json_encode($data);
 
         $ch = curl_init($url);
@@ -110,11 +110,16 @@ class Api
 
         if (!$result || $error || $responseCode >= 300) {
             $this->rmpLogger->error('Error on RMP API call.', [
+                'url' => $url,
                 'curl_error' => $error,
                 'status_code' => $responseCode,
                 'request' => $dataString,
                 'response' => $result,
             ]);
+
+            if (!$result || $error || $responseCode >= 500 || $responseCode === 404) {
+                throw new \Exception('Call to the RMP API failed.');
+            }
         } else if ($this->helper->isDebugLoggingEnabled()) {
             $this->rmpLogger->debug('Successful RMP API call.', [
                 'status_code' => $responseCode,

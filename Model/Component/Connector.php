@@ -125,10 +125,15 @@ class Connector
         if (!$response) {
             $content = $this->quote->getNormalizedQuote();
 
-            /** @var Response $response */
-            $response = $this->api->post($content);
-            $response->setHash($this->quote);
-            $this->storeResponse($response);
+            try {
+                /** @var Response $response */
+                $response = $this->api->post($content);
+                $response->setHash($this->quote);
+                $this->storeResponse($response);
+            } catch (\Exception $e) {
+                // Error message will be logged in API adapter. Nothing to be done here.
+                return false;
+            }
         }
 
         $isAvailable = $response->filterPayment($paymentMethod);
