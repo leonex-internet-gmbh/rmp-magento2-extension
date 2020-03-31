@@ -7,6 +7,7 @@
                 <time_of_checking>pre</time_of_checking>
                 <dob_tooltip><![CDATA[Das Gebutrsdatum wird für eine Bonitätsprüfung benötigt. Nur so bekommen Sie die Zahlungsart "Rechnung" angeboten (optional).]]></dob_tooltip>
                 <is_dob_required>1</is_dob_required>
+                <debug_logging_enabled>0</debug_logging_enabled>
             </settings>
         </leonex_rmp>
     </default>

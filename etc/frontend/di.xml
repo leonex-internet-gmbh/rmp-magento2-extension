@@ -4,4 +4,22 @@
     <type name="\Magento\Checkout\Block\Checkout\LayoutProcessor">
         <plugin name="rmp.layout.processor" type="Leonex\RiskManagementPlatform\Plugin\Checkout\Block\Checkout\LayoutProcessorPlugin" sortOrder="1" disabled="false" />
     </type>
+    <!-- custom logger -->
+    <virtualType name="rmp_log_handler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/rmp.log</argument>
+         </arguments>
+    </virtualType>
+    <type name="Leonex\RiskManagementPlatform\Model\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">rmp</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="rmp" xsi:type="object">rmp_log_handler</item>
+                <!-- inject the system handler, but as non-shared, because in Logger
+                     constructor the minimum log level will be lifted to 'error' and this must not
+                     be done in the global instance. -->
+                <item name="system" xsi:type="object" shared="false">Magento\Framework\Logger\Handler\System</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

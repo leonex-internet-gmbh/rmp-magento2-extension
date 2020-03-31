@@ -4,7 +4,7 @@ namespace Leonex\RiskManagementPlatform\Model\Component;
 
 use Leonex\RiskManagementPlatform\Helper\Data;
 use Leonex\RiskManagementPlatform\Model\Component;
-use Leonex\RiskManagementPlatform\Model\Config\Source\CheckingTime;
+use Leonex\RiskManagementPlatform\Model\Logger;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
@@ -78,6 +78,11 @@ class Connector
     protected $responseFactory;
 
     /**
+     * @var Logger
+     */
+    protected $rmpLogger;
+
+    /**
      * Connector constructor.
      *
      * @param Quote           $quote
@@ -91,40 +96,49 @@ class Connector
         Data $helper,
         CacheInterface $cacheInterface,
         Api $api,
-        ResponseFactory $responseFactory
+        ResponseFactory $responseFactory,
+        Logger $rmpLogger
     ) {
         $this->quote = $quote;
         $this->helper = $helper;
         $this->cacheInterface = $cacheInterface;
         $this->api = $api;
         $this->responseFactory = $responseFactory;
+        $this->rmpLogger = $rmpLogger;
     }
 
     /**
      * Check if Paymentmethod is available
      *
-     * @param Observer $observer
+     * @param string $paymentMethod
      *
      * @return bool
      */
-    public function checkPaymentPre(Observer $observer)
+    public function checkPaymentPre(string $paymentMethod): bool
     {
-        if ($this->hasCachedResponse($this->quote)) {
-            $response = $this->loadResponse($this->quote->getQuoteHash());
-        } else {
-            $content = $this->quote->getNormalizedQuote();
+        if ($this->helper->isDebugLoggingEnabled()) {
+            $this->rmpLogger->debug('Started payment check', ['payment_method' => $paymentMethod]);
+        }
 
-            $this->api->setConfiguration([
-                'api_url' => $this->helper->getApiUrl(), 'api_key' => $this->helper->getApiKey()
-            ]);
+        $response = $this->loadCachedResponse($this->quote->getQuoteHash());
+
+        if (!$response) {
+            $content = $this->quote->getNormalizedQuote();
 
             /** @var Response $response */
             $response = $this->api->post($content);
             $response->setHash($this->quote);
             $this->storeResponse($response);
         }
-        
-        return $response->filterPayment($this->getPaymentMethod($observer));
+
+        $isAvailable = $response->filterPayment($paymentMethod);
+
+        if ($this->helper->isDebugLoggingEnabled()) {
+            $msg = $isAvailable ? 'Payment method is available' : 'Payment method is not available';
+            $this->rmpLogger->debug($msg, ['payment_method' => $paymentMethod]);
+        }
+
+        return $isAvailable;
     }
 
     /**
@@ -157,19 +171,6 @@ class Connector
     }
 
     /**
-     * Check if the basket and customer data has any changes.
-     * If not then load the old response from the session.
-     *
-     * @param Quote $quote
-     *
-     * @return bool
-     */
-    protected function hasCachedResponse(Quote $quote): bool
-    {
-        return (bool)$this->loadResponse($quote->getQuoteHash());
-    }
-
-    /**
      * Get Cache-Object
      *
      * @return CacheInterface
@@ -177,19 +178,6 @@ class Connector
     protected function getCache()
     {
         return $this->cacheInterface;
-    }
-
-    /**
-     * Get the inner payment method from observer
-     *
-     * @param Observer $observer
-     *
-     * @return mixed
-     */
-    protected function getPaymentMethod(Observer $observer)
-    {
-        $event = $observer->getEvent();
-        return $event->getMethodInstance()->getCode();
     }
 
     /**
@@ -208,13 +196,17 @@ class Connector
      *
      * @param $hash
      *
-     * @return bool|Response
+     * @return null|Response
      */
-    protected function loadResponse($hash)
+    protected function loadCachedResponse($hash)
     {
         $cache = $this->getCache();
         $response = $cache->load($hash);
 
-        return $response ? $this->responseFactory->create(['jsonString' => $response]) : false;
+        if ($response && $this->helper->isDebugLoggingEnabled()) {
+            $this->rmpLogger->debug('Loaded API response from cache.', ['response' => $response]);
+        }
+
+        return $response ? $this->responseFactory->create(['jsonString' => $response]) : null;
     }
 }

@@ -2,6 +2,9 @@
 
 namespace Leonex\RiskManagementPlatform\Model\Component;
 
+use Leonex\RiskManagementPlatform\Helper\Data;
+use Leonex\RiskManagementPlatform\Model\Logger;
+
 /**
  * Class Api
  *
@@ -43,36 +46,25 @@ class Api
     protected $apiUrl;
 
     /**
-     * @var resource
+     * @var Data
      */
-    protected $cURL;
+    protected $helper;
 
     /**
      * @var ResponseFactory
      */
     protected $responseFactory;
 
-    public function __construct(ResponseFactory $responseFactory)
-    {
-        $this->responseFactory = $responseFactory;
-    }
-
     /**
-     * Set cURL configuration
-     *
-     * @param array $array
+     * @var Logger
      */
-    public function setConfiguration(array $array)
-    {
-        $this->apiUrl = rtrim($array['api_url'], '/');
+    protected $rmpLogger;
 
-        $this->cURL = curl_init();
-        curl_setopt($this->cURL, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($this->cURL, CURLOPT_FOLLOWLOCATION, false);
-        curl_setopt($this->cURL, CURLOPT_HTTPHEADER, array(
-            'User-Agent: Magento 2 RMP Connector',
-            'X-AUTH-KEY: ' . $array['api_key'], 'Content-Type: application/json; charset=utf-8',
-        ));
+    public function __construct(Data $helper, ResponseFactory $responseFactory, Logger $rmpLogger)
+    {
+        $this->helper = $helper;
+        $this->responseFactory = $responseFactory;
+        $this->rmpLogger = $rmpLogger;
     }
 
     /**
@@ -94,13 +86,42 @@ class Api
         if (!empty($params)) {
             $queryString = '?' . http_build_query($params);
         }
-        $url = rtrim($this->apiUrl, '?');
-        $url = $url . $queryString;
+
+        $url = rtrim($this->helper->getApiUrl(), '?/') . $queryString;
         $dataString = json_encode($data);
-        curl_setopt($this->cURL, CURLOPT_URL, $url);
-        curl_setopt($this->cURL, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($this->cURL, CURLOPT_POSTFIELDS, $dataString);
-        $result = curl_exec($this->cURL);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'User-Agent: Magento 2 RMP Connector',
+            'Content-Type: application/json; charset=utf-8',
+            'X-AUTH-KEY: ' . $this->helper->getApiKey(),
+        ]);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
+
+        $result = curl_exec($ch);
+
+        $error = false === $result ? curl_error($ch) : null;
+        $responseCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+
+        curl_close($ch);
+
+        if (!$result || $error || $responseCode >= 300) {
+            $this->rmpLogger->error('Error on RMP API call.', [
+                'curl_error' => $error,
+                'status_code' => $responseCode,
+                'request' => $dataString,
+                'response' => $result,
+            ]);
+        } else if ($this->helper->isDebugLoggingEnabled()) {
+            $this->rmpLogger->debug('Successful RMP API call.', [
+                'status_code' => $responseCode,
+                'request' => $dataString,
+                'response' => $result,
+            ]);
+        }
 
         return $this->prepareResponse($result);
     }

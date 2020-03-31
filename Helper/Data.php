@@ -87,7 +87,7 @@ class Data extends AbstractHelper
      */
     public function getApiKey()
     {
-        return $this->getConfigValue('apikey');
+        return trim($this->getConfigValue('apikey'));
     }
 
     /**
@@ -122,4 +122,13 @@ class Data extends AbstractHelper
         return $this->getConfigFlag('is_dob_required');
     }
 
+    /**
+     * Check if debug logging is enabled.
+     *
+     * @return bool
+     */
+    public function isDebugLoggingEnabled(): bool
+    {
+        return (bool) $this->getConfigFlag('debug_logging_enabled');
+    }
 }
