@@ -43,14 +43,14 @@ class Response extends DataObject
      *
      * @return bool
      */
-    public function filterPayment($payment)
+    public function filterPayment($payment): bool
     {
         // payment method is not in response
-        if (!$this->hasData('payment_methods/'.$payment)) {
+        if (!isset($this->_data['payment_methods'][$payment])) {
             return true;
         }
 
-        return (boolean) $this->getData('payment_methods/'.$payment.'/available');
+        return (bool) ($this->_data['payment_methods'][$payment]['available'] ?? false);
     }
 
     /**
