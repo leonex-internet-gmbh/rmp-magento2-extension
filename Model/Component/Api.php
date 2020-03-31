@@ -87,7 +87,7 @@ class Api
             $queryString = '?' . http_build_query($params);
         }
 
-        $url = rtrim($this->helper->getApiUrl(), '?/') . $queryString . 'FoOoO';
+        $url = rtrim($this->helper->getApiUrl(), '?/') . $queryString;
         $dataString = json_encode($data);
 
         $ch = curl_init($url);

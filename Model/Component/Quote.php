@@ -82,6 +82,16 @@ class Quote
     }
 
     /**
+     * Get the quote's grand total.
+     *
+     * @return float
+     */
+    public function getGrandTotal(): float
+    {
+        return (float) $this->quote->getGrandTotal();
+    }
+
+    /**
      * Return the normalized quote and trigger a filter event.
      *
      * @return mixed

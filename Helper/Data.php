@@ -112,6 +112,27 @@ class Data extends AbstractHelper
         return 'adminhtml' === $this->state->getAreaCode();
     }
 
+    /**
+     * Get the payment methods codes that should be checked.
+     *
+     * @return array
+     */
+    public function getPaymentMethodsToCheck(): array
+    {
+        $value = $this->getConfigValue('payment_methods_to_check');
+        return $value ? explode(',', $value): [];
+    }
+
+    /**
+     * Get the Maximum order grand total if the RMP is unavailable.
+     *
+     * @return float
+     */
+    public function getMaxGrandTotalWhenOffline(): float
+    {
+        return (float) $this->getConfigValue('max_grand_total_when_offline');
+    }
+
     public function getDobFieldTooltip()
     {
         return trim($this->getConfigValue('dob_tooltip'));

@@ -131,8 +131,10 @@ class Connector
                 $response->setHash($this->quote);
                 $this->storeResponse($response);
             } catch (\Exception $e) {
-                // Error message will be logged in API adapter. Nothing to be done here.
-                return false;
+                // Error message will be logged in API adapter.
+                // We fall back to the modules setting for maximum grand total when platform is offline.
+                $maxGrandTotal = $this->helper->getMaxGrandTotalWhenOffline();
+                return bccomp($maxGrandTotal, $this->quote->getGrandTotal(), 2) >= 0;
             }
         }
 
@@ -166,6 +168,11 @@ class Connector
         $event = $observer->getEvent();
         $method = $event->getMethodInstance();
         if ($method instanceof MethodInterface) {
+            $paymentMethodsToCheck = $this->helper->getPaymentMethodsToCheck();
+            if (!in_array($method->getCode(), $paymentMethodsToCheck, true)) {
+                return false;
+            }
+
             $result = $event->getResult();
             if ($result->getData('is_available')) {
                 return true;
