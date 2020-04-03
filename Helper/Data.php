@@ -6,6 +6,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Payment\Helper\Data as PaymentHelper;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -24,6 +25,8 @@ class Data extends AbstractHelper
      */
     protected $state;
 
+    protected $paymentHelper;
+
     /**
      * Data constructor.
      *
@@ -34,10 +37,12 @@ class Data extends AbstractHelper
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
-        State $state
+        State $state,
+        PaymentHelper $paymentHelper
     ) {
         $this->storeManager = $storeManager;
         $this->state = $state;
+        $this->paymentHelper = $paymentHelper;
         parent::__construct($context);
     }
 
@@ -120,7 +125,14 @@ class Data extends AbstractHelper
     public function getPaymentMethodsToCheck(): array
     {
         $value = $this->getConfigValue('payment_methods_to_check');
-        return $value ? explode(',', $value): [];
+        if (trim($value)) {
+            return explode(',', $value);
+        }
+
+        // If no payment method has been selected, we'll check all.
+        // This is no problem because only those that are configured in the RMP
+        // have a chance to be disabled.
+        return array_keys($this->paymentHelper->getPaymentMethodList(true));
     }
 
     /**
