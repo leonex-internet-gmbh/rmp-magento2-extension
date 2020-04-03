@@ -14,9 +14,11 @@ if (interface_exists('Magento\Framework\Setup\Patch\DataPatchInterface', false))
      */
     abstract class PaymentMethodSelectionAbstract implements DataPatchInterface
     {
+        protected $paymentHelper;
+        protected $moduleDataSetup;
         public function __construct(ModuleDataSetupInterface $moduleDataSetup, PaymentHelper $paymentHelper)
         {
-            parent::__construct($paymentHelper);
+            $this->paymentHelper = $paymentHelper;
             $this->moduleDataSetup = $moduleDataSetup;
         }
     }
@@ -26,6 +28,8 @@ if (interface_exists('Magento\Framework\Setup\Patch\DataPatchInterface', false))
      */
     abstract class PaymentMethodSelectionAbstract implements \Magento\Framework\Setup\UpgradeDataInterface
     {
+        protected $paymentHelper;
+        protected $moduleDataSetup;
         public function upgrade(ModuleDataSetupInterface $setup, \Magento\Framework\Setup\ModuleContextInterface $context)
         {
             // Dummy method. Please look at Leonex\RiskManagementPlatform\Setup\UpgradeData
@@ -36,16 +40,6 @@ if (interface_exists('Magento\Framework\Setup\Patch\DataPatchInterface', false))
 
 class PaymentMethodSelection extends PaymentMethodSelectionAbstract
 {
-    /**
-     * @var ModuleDataSetupInterface
-     */
-    protected $moduleDataSetup;
-
-    /**
-     * @var PaymentHelper
-     */
-    protected $paymentHelper;
-
     /**
      * {@inheritdoc}
      */
