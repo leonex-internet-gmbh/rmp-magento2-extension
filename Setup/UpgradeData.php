@@ -13,7 +13,6 @@ namespace Leonex\RiskManagementPlatform\Setup;
 use Leonex\RiskManagementPlatform\Setup\Patch\Data\PaymentMethodSelection;
 use Magento\Payment\Helper\Data as PaymentHelper;
 use Magento\Framework\App\State;
-use Magento\Framework\Session\SessionStartChecker;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
@@ -23,10 +22,9 @@ use Magento\Framework\Setup\UpgradeDataInterface;
  */
 class UpgradeData extends PaymentMethodSelection implements UpgradeDataInterface
 {
-    public function __construct(PaymentHelper $paymentHelper, SessionStartChecker $sessionStartChecker, State $appState)
+    public function __construct(PaymentHelper $paymentHelper, State $appState)
     {
         $this->paymentHelper = $paymentHelper;
-        $this->sessionStartChecker = $sessionStartChecker;
         $this->appState = $appState;
     }
 

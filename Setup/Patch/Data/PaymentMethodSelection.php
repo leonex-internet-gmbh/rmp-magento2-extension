@@ -58,7 +58,7 @@ class PaymentMethodSelection extends PaymentMethodSelectionAbstract
      */
     public function apply()
     {
-        if ($this->sessionStartChecker->check()) {
+        if (!isset($this->sessionStartChecker) || $this->sessionStartChecker->check()) {
             $this->appState->setAreaCode('global');
         }
 
