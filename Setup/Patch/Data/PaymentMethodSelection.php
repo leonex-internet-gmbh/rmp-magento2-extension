@@ -4,6 +4,8 @@ namespace Leonex\RiskManagementPlatform\Setup\Patch\Data;
 
 use Leonex\RiskManagementPlatform\Helper\Data;
 use Magento\Payment\Helper\Data as PaymentHelper;
+use Magento\Framework\App\State;
+use Magento\Framework\Session\SessionStartChecker;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface; // since Magento 2.3
 
@@ -16,10 +18,18 @@ if (interface_exists('Magento\Framework\Setup\Patch\DataPatchInterface', false))
     {
         protected $paymentHelper;
         protected $moduleDataSetup;
-        public function __construct(ModuleDataSetupInterface $moduleDataSetup, PaymentHelper $paymentHelper)
-        {
+        protected $sessionStartChecker;
+        protected $appState;
+        public function __construct(
+            ModuleDataSetupInterface $moduleDataSetup,
+            PaymentHelper $paymentHelper,
+            SessionStartChecker $sessionStartChecker,
+            State $appState
+        ) {
             $this->paymentHelper = $paymentHelper;
             $this->moduleDataSetup = $moduleDataSetup;
+            $this->sessionStartChecker = $sessionStartChecker;
+            $this->appState = $appState;
         }
     }
 } else if (interface_exists('Magento\Framework\Setup\UpgradeDataInterface', false)) {
@@ -30,6 +40,9 @@ if (interface_exists('Magento\Framework\Setup\Patch\DataPatchInterface', false))
     {
         protected $paymentHelper;
         protected $moduleDataSetup;
+        protected $sessionStartChecker;
+        protected $appState;
+
         public function upgrade(ModuleDataSetupInterface $setup, \Magento\Framework\Setup\ModuleContextInterface $context)
         {
             // Dummy method. Please look at Leonex\RiskManagementPlatform\Setup\UpgradeData
@@ -45,6 +58,10 @@ class PaymentMethodSelection extends PaymentMethodSelectionAbstract
      */
     public function apply()
     {
+        if ($this->sessionStartChecker->check()) {
+            $this->appState->setAreaCode('global');
+        }
+
         $this->moduleDataSetup->getConnection()->startSetup();
 
         $configTable = $this->moduleDataSetup->getTable('core_config_data');

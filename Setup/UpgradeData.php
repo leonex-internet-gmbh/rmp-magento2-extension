@@ -12,6 +12,8 @@ namespace Leonex\RiskManagementPlatform\Setup;
 
 use Leonex\RiskManagementPlatform\Setup\Patch\Data\PaymentMethodSelection;
 use Magento\Payment\Helper\Data as PaymentHelper;
+use Magento\Framework\App\State;
+use Magento\Framework\Session\SessionStartChecker;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
@@ -21,9 +23,11 @@ use Magento\Framework\Setup\UpgradeDataInterface;
  */
 class UpgradeData extends PaymentMethodSelection implements UpgradeDataInterface
 {
-    public function __construct(PaymentHelper $paymentHelper)
+    public function __construct(PaymentHelper $paymentHelper, SessionStartChecker $sessionStartChecker, State $appState)
     {
         $this->paymentHelper = $paymentHelper;
+        $this->sessionStartChecker = $sessionStartChecker;
+        $this->appState = $appState;
     }
 
     /**
@@ -36,34 +40,5 @@ class UpgradeData extends PaymentMethodSelection implements UpgradeDataInterface
         if (version_compare($context->getVersion(), '2.0.1', '<')) {
             $this->apply();
         }
-
-        return;
-
-        $installer->startSetup();
-
-        if (version_compare($context->getVersion(), '4.0.2', '<')) {
-            $this->disableAllQuotes($installer);
-        }
-        if (version_compare($context->getVersion(), '5.3.2', '<')) {
-            $this->disableInvalidQuotes($installer);
-            $methods = [
-                'klarna_pay_later',
-                'klarna_pay_now',
-                'klarna_pay_over_time',
-                'klarna_direct_debit',
-                'klarna_direct_bank_transfer'
-            ];
-            $methods = "'" . implode("','", $methods) . "'";
-
-            $this->updateAdditionalInformation($installer, $methods);
-            $this->changePaymentKeyToGeneric($installer, $methods);
-        }
-        if (version_compare($context->getVersion(), '5.4.5', '<')) {
-            $this->removeStrongHtmlTag($installer);
-        }
-        if (version_compare($context->getVersion(), '5.5.4', '<')) {
-            $this->clearDesignConfig($installer);
-        }
-        $installer->endSetup();
     }
 }
