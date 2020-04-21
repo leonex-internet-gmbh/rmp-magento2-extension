@@ -47,7 +47,8 @@ class LayoutProcessorPlugin
             'provider' => 'checkoutProvider',
             'sortOrder' => 999,
             'validation' => [
-                'required-entry' => $this->helper->isDobFieldRequired()
+                'required-entry' => $this->helper->isDobFieldRequired(),
+                 'dateITA'=>true,
             ],
             'options' => [],
             'filterBy' => null,
