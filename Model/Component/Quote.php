@@ -92,22 +92,12 @@ class Quote
     }
 
     /**
-     * Return the normalized quote and trigger a filter event.
-     *
-     * @return mixed
-     */
-    public function getNormalizedQuote()
-    {
-        return $this->normalizeQuote();
-    }
-
-    /**
      * Structure the given information in a new structured way.
      * The structure correlate with required api-structure.
      *
      * @return array
      */
-    protected function normalizeQuote()
+    public function getNormalizedQuote()
     {
         return [
             'customerSessionId' => $this->quote->getId(),
@@ -187,10 +177,17 @@ class Quote
      */
     protected function getCustomerData()
     {
-        $customer = $this->customer;
+        $email = $this->quote->getCustomerEmail();
+        if (!$email) {
+            $email = $this->billingAddress->getEmail();
+        }
+        if (!$email) {
+            $email = $this->checkoutSession->getStepData('billing_address', 'leonex.rmp.email');
+        }
+
         return array(
-            'number' => $customer->getId(),
-            'email' => $this->billingAddress->getEmail(),
+            'number' => $this->customer->getId(),
+            'email' => $email,
         );
     }
 
@@ -226,7 +223,7 @@ class Quote
      */
     public function getQuoteHash()
     {
-        $json = \json_encode($this->normalizeQuote());
+        $json = \json_encode($this->getNormalizedQuote());
         return hash('sha256', $json);
     }
 
