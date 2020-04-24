@@ -97,7 +97,7 @@ class Quote
      *
      * @return array
      */
-    public function getNormalizedQuote()
+    public function getNormalizedQuote(): array
     {
         return [
             'customerSessionId' => $this->quote->getId(),
@@ -115,7 +115,7 @@ class Quote
      *
      * @return array
      */
-    protected function getBillingAddress()
+    protected function getBillingAddress(): array
     {
         $billingAddress = $this->billingAddress;
         $gender = array_key_exists($this->customer->getGender(), self::GENDER) ? self::GENDER[$this->customer->getGender()] : null;
@@ -139,11 +139,11 @@ class Quote
      *
      * @return array
      */
-    protected function getQuote()
+    protected function getQuote(): array
     {
         return [
             'items' => $this->getQuoteItems(),
-            'totalAmount' => $this->quote->getGrandTotal()
+            'totalAmount' => (float) $this->quote->getGrandTotal(),
         ];
     }
 
@@ -152,9 +152,9 @@ class Quote
      *
      * @return array
      */
-    protected function getQuoteItems()
+    protected function getQuoteItems(): array
     {
-        $quoteItems = array();
+        $quoteItems = [];
 
         /** @var Item $item */
         foreach ($this->quote->getAllItems() as $item) {
@@ -175,20 +175,31 @@ class Quote
      *
      * @return array
      */
-    protected function getCustomerData()
+    protected function getCustomerData(): array
     {
-        $email = $this->quote->getCustomerEmail();
-        if (!$email) {
-            $email = $this->billingAddress->getEmail();
-        }
-        if (!$email) {
-            $email = $this->checkoutSession->getStepData('billing_address', 'leonex.rmp.email');
+        return [
+            'number' => $this->customer->getId(),
+            'email' => $this->getCustomerEmail(),
+        ];
+    }
+
+    /**
+     * Get the customer's email address.
+     *
+     * @return string|null
+     */
+    public function getCustomerEmail(): ?string
+    {
+        if ($email = $this->quote->getCustomerEmail()) {
+            return $email;
         }
 
-        return array(
-            'number' => $this->customer->getId(),
-            'email' => $email,
-        );
+        if ($email = $this->billingAddress->getEmail()) {
+            return $email;
+        }
+
+        $email = $this->checkoutSession->getStepData('billing_address', 'leonex.rmp.email');
+        return $email ?: null;
     }
 
     /**
@@ -196,13 +207,12 @@ class Quote
      *
      * @return array
      */
-    protected function getOrderHistory()
+    protected function getOrderHistory(): array
     {
         return [
             'numberOfCanceledOrders' => $this->getNumberOfCanceledOrders(),
             'numberOfCompletedOrders' => $this->getNumberOfCompletedOrders(),
             'numberOfUnpaidOrders' => $this->getNumberOfUnpaidOrders(),
-            'numberOfOutstandingOrders' => $this->getNumberOfOutstandingOrders(),
         ];
     }
 
@@ -221,7 +231,7 @@ class Quote
      *
      * @return string
      */
-    public function getQuoteHash()
+    public function getQuoteHash(): string
     {
         $json = \json_encode($this->getNormalizedQuote());
         return hash('sha256', $json);
@@ -265,23 +275,13 @@ class Quote
      *
      * @return int
      */
-    protected function getNumberOfUnpaidOrders()
-    {
-        return $this->getNumberOf([Order::STATE_PENDING_PAYMENT]);
-    }
-
-    /**
-     * Get the number of outstanding orders
-     *
-     * @return int
-     */
-    protected function getNumberOfOutstandingOrders()
+    protected function getNumberOfUnpaidOrders(): int
     {
         return $this->getNumberOf([
-                Order::STATE_PENDING_PAYMENT,
-                Order::STATE_NEW,
-                Order::STATE_HOLDED,
-                Order::STATE_PROCESSING
+            Order::STATE_PENDING_PAYMENT,
+            Order::STATE_NEW,
+            Order::STATE_HOLDED,
+            Order::STATE_PROCESSING
         ]);
     }
 
@@ -292,12 +292,17 @@ class Quote
      *
      * @return int
      */
-    protected function getNumberOf(array $states)
+    protected function getNumberOf(array $states): int
     {
-        return $this->orderFactory
-            ->create($this->customer->getId())
-            ->addFieldToSelect('entity_id')
-            ->addFieldToFilter('state', $states)
-            ->count();
+        $col = $this->orderFactory->create($this->customer->getId());
+        $col->addFieldToSelect('entity_id');
+        $col->addFieldToFilter('state', $states);
+
+        if (!$this->customer->getId()) {
+            $email = $this->getCustomerEmail();
+            $col->addFieldToFilter('customer_email', ['like' => $email]);
+        }
+
+        return $col->count();
     }
 }
