@@ -27,7 +27,7 @@ class LayoutProcessorPlugin
     {
         $customAttributeCode = 'edob';
         $customField = [
-            'component' => 'Magento_Ui/js/form/element/abstract',
+            'component' => 'Magento_Ui/js/form/element/date',
             'config' => [
                 // customScope is used to group elements within a single form (e.g. they can be validated separately)
                 'customScope' => 'shippingAddress.custom_attributes',
