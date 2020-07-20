@@ -28,7 +28,7 @@ class PaymentMethods implements ArrayInterface
         foreach ($this->toArray() as $code => $name) {
             $options[] = [
                 'value' => $code,
-                'label' => $name,
+                'label' => $name . ' [' . $code . ']',
             ];
         }
         return $options;
