@@ -3,6 +3,7 @@
 namespace Leonex\RiskManagementPlatform\Setup;
 
 use Leonex\RiskManagementPlatform\Helper\Data;
+use Leonex\RiskManagementPlatform\Helper\Logging;
 use Magento\Payment\Helper\Data as PaymentHelper;
 use Magento\Framework\App\State;
 use Magento\Framework\Session\SessionStartChecker;
@@ -44,6 +45,10 @@ class UpgradeData implements UpgradeDataInterface
             $this->selectPaymentsToCheck($setup);
         }
 
+        if (version_compare($context->getVersion(), '2.0.2', '<')) {
+            $this->setupLoggingCapabilities($setup);
+        }
+
         $setup->endSetup();
     }
 
@@ -79,5 +84,17 @@ class UpgradeData implements UpgradeDataInterface
                 ]);
             }
         }
+    }
+
+    private function setupLoggingCapabilities(ModuleDataSetupInterface $setup): void
+    {
+        $configTable = $setup->getTable('core_config_data');
+
+        $setup->getConnection()->update(
+            $configTable,
+            ['path' => Logging::XML_PATH . 'debug_logging_enabled'],
+            ['path = ?' => Data::XML_PATH . 'debug_logging_enabled']
+        );
+        
     }
 }

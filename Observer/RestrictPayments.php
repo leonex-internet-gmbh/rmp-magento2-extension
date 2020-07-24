@@ -3,6 +3,7 @@
 namespace Leonex\RiskManagementPlatform\Observer;
 
 use Leonex\RiskManagementPlatform\Helper\Data;
+use Leonex\RiskManagementPlatform\Helper\Logging;
 use Leonex\RiskManagementPlatform\Model\Component\Connector;
 use Leonex\RiskManagementPlatform\Model\Config\Source\CheckingTime;
 use Leonex\RiskManagementPlatform\Model\Logger;
@@ -30,17 +31,24 @@ class RestrictPayments implements ObserverInterface
     protected $helper;
 
     /**
+     * @var Logging
+     */
+    protected $loggingHelper;
+
+    /**
      * @var Logger
      */
     protected $rmpLogger;
 
     public function __construct(
         Data $helper,
+        Logging $loggingHelper,
         Connector $connector,
         Logger $rmpLogger
     ) {
         $this->connector = $connector;
         $this->helper = $helper;
+        $this->loggingHelper = $loggingHelper;
         $this->rmpLogger = $rmpLogger;
     }
 
@@ -55,7 +63,7 @@ class RestrictPayments implements ObserverInterface
 
         $paymentMethod = $event->getMethodInstance()->getCode();
 
-        if ($this->helper->isDebugLoggingEnabled()) {
+        if ($this->loggingHelper->isDebugLoggingEnabled()) {
             $this->rmpLogger->debug('Observer for payment restriction called.', [
                 'payment_method' => $paymentMethod,
                 'event_name' => $event->getName(),
@@ -80,7 +88,7 @@ class RestrictPayments implements ObserverInterface
 
         if ($this->connector->isCheckNeeded($observer)) {
             $event->getResult()->setIsAvailable($this->connector->checkPaymentPre($paymentMethod));
-        } else if ($this->helper->isDebugLoggingEnabled()) {
+        } else if ($this->loggingHelper->isDebugLoggingEnabled()) {
             $this->rmpLogger->debug('Check is not needed.');
         }
     }

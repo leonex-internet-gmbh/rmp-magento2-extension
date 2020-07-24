@@ -3,6 +3,7 @@
 namespace Leonex\RiskManagementPlatform\Model\Component;
 
 use Leonex\RiskManagementPlatform\Helper\Data;
+use Leonex\RiskManagementPlatform\Helper\Logging;
 use Leonex\RiskManagementPlatform\Model\Component;
 use Leonex\RiskManagementPlatform\Model\Logger;
 use Magento\Framework\App\CacheInterface;
@@ -63,6 +64,11 @@ class Connector
     protected $helper;
 
     /**
+     * @var Logging
+     */
+    protected $loggingHelper;
+
+    /**
      * @var CacheInterface
      */
     protected $cacheInterface;
@@ -94,6 +100,7 @@ class Connector
     public function __construct(
         Component\Quote $quote,
         Data $helper,
+        Logging $loggingHelper,
         CacheInterface $cacheInterface,
         Api $api,
         ResponseFactory $responseFactory,
@@ -101,6 +108,7 @@ class Connector
     ) {
         $this->quote = $quote;
         $this->helper = $helper;
+        $this->loggingHelper = $loggingHelper;
         $this->cacheInterface = $cacheInterface;
         $this->api = $api;
         $this->responseFactory = $responseFactory;
@@ -116,7 +124,7 @@ class Connector
      */
     public function checkPaymentPre(string $paymentMethod): bool
     {
-        if ($this->helper->isDebugLoggingEnabled()) {
+        if ($this->loggingHelper->isDebugLoggingEnabled()) {
             $this->rmpLogger->debug('Started payment check', ['payment_method' => $paymentMethod]);
         }
 
@@ -140,7 +148,7 @@ class Connector
 
         $isAvailable = $response->filterPayment($paymentMethod);
 
-        if ($this->helper->isDebugLoggingEnabled()) {
+        if ($this->loggingHelper->isDebugLoggingEnabled()) {
             $msg = $isAvailable ? 'Payment method is available' : 'Payment method is not available';
             $this->rmpLogger->debug($msg, ['payment_method' => $paymentMethod]);
         }
@@ -168,7 +176,7 @@ class Connector
         $event = $observer->getEvent();
         $method = $event->getMethodInstance();
         if ($method instanceof MethodInterface) {
-            $paymentMethodsToCheck = $this->helper->getPaymentMethodsToCheck();
+            $paymentMethodsToCheck = $helper->getPaymentMethodsToCheck();
             if (!in_array($method->getCode(), $paymentMethodsToCheck, true)) {
                 return false;
             }
@@ -215,7 +223,7 @@ class Connector
         $cache = $this->getCache();
         $response = $cache->load($hash);
 
-        if ($response && $this->helper->isDebugLoggingEnabled()) {
+        if ($response && $this->loggingHelper->isDebugLoggingEnabled()) {
             $this->rmpLogger->debug('Loaded API response from cache.', ['response' => $response]);
         }
 

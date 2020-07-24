@@ -154,14 +154,4 @@ class Data extends AbstractHelper
     {
         return $this->getConfigFlag('is_dob_required');
     }
-
-    /**
-     * Check if debug logging is enabled.
-     *
-     * @return bool
-     */
-    public function isDebugLoggingEnabled(): bool
-    {
-        return (bool) $this->getConfigFlag('debug_logging_enabled');
-    }
 }

@@ -3,6 +3,7 @@
 namespace Leonex\RiskManagementPlatform\Model\Component;
 
 use Leonex\RiskManagementPlatform\Helper\Data;
+use Leonex\RiskManagementPlatform\Helper\Logging;
 use Leonex\RiskManagementPlatform\Model\Logger;
 
 /**
@@ -51,6 +52,11 @@ class Api
     protected $helper;
 
     /**
+     * @var Logging
+     */
+    protected $loggingHelper;
+
+    /**
      * @var ResponseFactory
      */
     protected $responseFactory;
@@ -60,9 +66,10 @@ class Api
      */
     protected $rmpLogger;
 
-    public function __construct(Data $helper, ResponseFactory $responseFactory, Logger $rmpLogger)
+    public function __construct(Data $helper, Logging $loggingHelper, ResponseFactory $responseFactory, Logger $rmpLogger)
     {
         $this->helper = $helper;
+        $this->loggingHelper = $loggingHelper;
         $this->responseFactory = $responseFactory;
         $this->rmpLogger = $rmpLogger;
     }
@@ -120,7 +127,7 @@ class Api
             if (!$result || $error || $responseCode >= 500 || $responseCode === 404) {
                 throw new \Exception('Call to the RMP API failed.');
             }
-        } else if ($this->helper->isDebugLoggingEnabled()) {
+        } else if ($this->loggingHelper->isDebugLoggingEnabled()) {
             $this->rmpLogger->debug('Successful RMP API call.', [
                 'status_code' => $responseCode,
                 'request' => $dataString,

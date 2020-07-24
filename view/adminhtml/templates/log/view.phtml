@@ -1,0 +1,58 @@
+<?php
+/** @var \Magento\Framework\View\TemplateEngine\Php $this */
+/** @var \Magento\Backend\Block\Template $block */
+/** @var \Leonex\RiskManagementPlatform\Model\Log $log */
+$log = $this->getLog();
+?>
+<div class="admin__data-grid-wrap" data-role="grid-wrapper">
+    <table class="data-grid data-grid-draggable" data-role="grid">
+        <tr>
+            <th class="data-grid-th"><?= __('Attribute') ?></th>
+            <th class="data-grid-th"><?= __('Value') ?></th>
+        </tr>
+        <tr>
+            <td><?= __('Log ID') ?></td>
+            <td><?= $log->getId() ?> (<?= __('created at') . ' ' . $log->getCreatedAt() ?>)</td>
+        </tr>
+        <tr>
+            <td><?= __('Quote ID') ?></td>
+            <td><?= $log->getQuoteId() ?> (<?= __('created at') . ' ' . $log->getQuote()->getCreatedAt() ?>)</td>
+        </tr>
+        <tr>
+            <td><?= __('Order ID') ?></td>
+            <td><?= $log->getOrderId() ? $log->getOrder()->getIncrementId() : '' ?> (<?= __('created at') . ' ' . $log->getOrder()->getCreatedAt() ?>)</td>
+        </tr>
+        <tr>
+            <td><?= __('Bill-to Name') ?></td>
+            <td><?= $log->getOrder() ? ($log->getOrder()->getCustomerFirstname() . ' ' . $log->getOrder()->getCustomerLastname()) : ($log->getQuote()->getCustomerFirstname() . ' ' . $log->getQuote()->getCustomerLastname()) ?></td>
+        </tr>
+        <tr>
+            <td><?= __('Level') ?></td>
+            <td><?= $log->getLevel() ?></td>
+        </tr>
+        <tr>
+            <td><?= __('Tag') ?></td>
+            <td><?= $log->getTag() ?></td>
+        </tr>
+        <tr>
+            <td><?= __('Message') ?></td>
+            <td><?= $log->getMessage() ?></td>
+        </tr>
+    </table>
+</div>
+
+<h2><?= __('Payload') ?></h2>
+<div class="admin__data-grid-wrap" data-role="grid-wrapper">
+    <table class="data-grid data-grid-draggable" data-role="grid">
+        <tr>
+            <th class="data-grid-th"><?= __('Attribute') ?></th>
+            <th class="data-grid-th"><?= __('Value') ?></th>
+        </tr>
+        <?php foreach ($log->getPayload() as $key => $value): ?>
+            <tr>
+                <td><?= __($key) ?></td>
+                <td><?= $block->escapeHtml($value) ?></td>
+            </tr>
+        <?php endforeach ?>
+    </table>
+</div>
