@@ -18,13 +18,13 @@ use Magento\Sales\Model\OrderRepository;
  * @method string getMessage()
  * @method array getPayload() Get additional unstructured data.
  * @method string getCreatedAt()
- * @method void setQuoteId(int $quoteId)
- * @method void setOrderId(int $orderId)
- * @method void setLevel(string $level)
- * @method void setTag(string $tag)
- * @method void setMessage(string $message)
- * @method void setPayload(array $value) Set additional unstructured data.
- * @method void setCreatedAt(string $createdAt)
+ * @method self setQuoteId(int $quoteId)
+ * @method self setOrderId(int $orderId)
+ * @method self setLevel(string $level)
+ * @method self setTag(string $tag)
+ * @method self setMessage(string $message)
+ * @method self setPayload(array $value) Set additional unstructured data.
+ * @method self setCreatedAt(string $createdAt)
  */
 class Log extends AbstractModel implements IdentityInterface
 {
@@ -74,6 +74,10 @@ class Log extends AbstractModel implements IdentityInterface
 
     public function getQuote(): ?\Magento\Quote\Model\Quote
     {
+        if (!$this->getQuoteId()) {
+            return null;
+        }
+
         if (!$this->getData('quote') || $this->getData('quote')->getId() != $this->getQuoteId()) {
             $quote = $this->quoteRepository->get($this->getQuoteId());
             $this->setData('quote', $quote);
@@ -84,6 +88,10 @@ class Log extends AbstractModel implements IdentityInterface
 
     public function getOrder(): ?\Magento\Sales\Model\Order
     {
+        if (!$this->getOrderId()) {
+            return null;
+        }
+
         if (!$this->getData('order') || $this->getData('order')->getId() != $this->getOrderId()) {
             $order = $this->orderRepository->get($this->getOrderId());
             $this->setData('order', $order);
