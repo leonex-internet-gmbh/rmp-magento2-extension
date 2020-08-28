@@ -6,7 +6,7 @@ use Leonex\RiskManagementPlatform\Helper\Data;
 use Leonex\RiskManagementPlatform\Helper\Logging;
 use Leonex\RiskManagementPlatform\Model\Component\Connector;
 use Leonex\RiskManagementPlatform\Model\Config\Source\CheckingTime;
-use Leonex\RiskManagementPlatform\Model\Logger;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\Event;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -19,6 +19,8 @@ class RestrictPayments implements ObserverInterface
      * @var bool
      */
     protected $isAfterPaymentMethodSelection = false;
+
+    protected $checkoutSession;
 
     /**
      * @var Connector
@@ -35,21 +37,16 @@ class RestrictPayments implements ObserverInterface
      */
     protected $loggingHelper;
 
-    /**
-     * @var Logger
-     */
-    protected $rmpLogger;
-
     public function __construct(
+        Session $checkoutSession,
         Data $helper,
         Logging $loggingHelper,
-        Connector $connector,
-        Logger $rmpLogger
+        Connector $connector
     ) {
+        $this->checkoutSession = $checkoutSession;
         $this->connector = $connector;
         $this->helper = $helper;
         $this->loggingHelper = $loggingHelper;
-        $this->rmpLogger = $rmpLogger;
     }
 
     public function execute(Observer $observer)
@@ -62,14 +59,15 @@ class RestrictPayments implements ObserverInterface
         }
 
         $paymentMethod = $event->getMethodInstance()->getCode();
+        $quoteId = $this->checkoutSession->getQuoteId();
 
-        if ($this->loggingHelper->isDebugLoggingEnabled()) {
-            $this->rmpLogger->debug('Observer for payment restriction called.', [
-                'payment_method' => $paymentMethod,
-                'event_name' => $event->getName(),
-                'time_of_checking' => $this->helper->getTimeOfChecking(),
-            ]);
-        }
+        // debug logging
+        $msg = sprintf('Observer for payment restriction called for method "%s".', $paymentMethod);
+        $this->loggingHelper->log('debug', $msg, 'observer', [
+            'payment_method' => $paymentMethod,
+            'event_name' => $event->getName(),
+            'time_of_checking' => $this->helper->getTimeOfChecking(),
+        ], $quoteId);
 
         // set flag to post checking time
         if ($event->getName() === 'sales_quote_payment_import_data_before') {
@@ -88,8 +86,6 @@ class RestrictPayments implements ObserverInterface
 
         if ($this->connector->isCheckNeeded($observer)) {
             $event->getResult()->setIsAvailable($this->connector->checkPaymentPre($paymentMethod));
-        } else if ($this->loggingHelper->isDebugLoggingEnabled()) {
-            $this->rmpLogger->debug('Check is not needed.');
         }
     }
 }

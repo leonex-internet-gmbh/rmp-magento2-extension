@@ -4,7 +4,6 @@ namespace Leonex\RiskManagementPlatform\Model\Component;
 
 use Leonex\RiskManagementPlatform\Helper\Data;
 use Leonex\RiskManagementPlatform\Helper\Logging;
-use Leonex\RiskManagementPlatform\Model\Logger;
 
 /**
  * Class Api
@@ -61,17 +60,11 @@ class Api
      */
     protected $responseFactory;
 
-    /**
-     * @var Logger
-     */
-    protected $rmpLogger;
-
-    public function __construct(Data $helper, Logging $loggingHelper, ResponseFactory $responseFactory, Logger $rmpLogger)
+    public function __construct(Data $helper, Logging $loggingHelper, ResponseFactory $responseFactory)
     {
         $this->helper = $helper;
         $this->loggingHelper = $loggingHelper;
         $this->responseFactory = $responseFactory;
-        $this->rmpLogger = $rmpLogger;
     }
 
     /**
@@ -116,23 +109,23 @@ class Api
         curl_close($ch);
 
         if (!$result || $error || $responseCode >= 300) {
-            $this->rmpLogger->error('Error on RMP API call.', [
+            $this->loggingHelper->forceLogToFile('error', 'Error on RMP API call.', 'http_request', [
                 'url' => $url,
                 'curl_error' => $error,
                 'status_code' => $responseCode,
                 'request' => $dataString,
                 'response' => $result,
-            ]);
+            ], $data['customerSessionId'] ?? null);
 
             if (!$result || $error || $responseCode >= 500 || $responseCode === 404) {
                 throw new \Exception('Call to the RMP API failed.');
             }
-        } else if ($this->loggingHelper->isDebugLoggingEnabled()) {
-            $this->rmpLogger->debug('Successful RMP API call.', [
+        } else {
+            $this->loggingHelper->log('info', 'Successful RMP API call.', 'http_request', [
                 'status_code' => $responseCode,
                 'request' => $dataString,
                 'response' => $result,
-            ]);
+            ], $data['customerSessionId'] ?? null);
         }
 
         return $this->prepareResponse($result);

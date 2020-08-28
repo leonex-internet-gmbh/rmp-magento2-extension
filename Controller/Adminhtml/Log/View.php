@@ -28,7 +28,7 @@ class View extends Action
     public function execute()
     {
         $page = $this->pageFactory->create();
-        $page->getConfig()->getTitle()->prepend((__('Logs')));
+        $page->getConfig()->getTitle()->prepend(__('Log'));
 
         $logId = $this->getRequest()->getParam('id');
         $log = $this->logFactory->create();

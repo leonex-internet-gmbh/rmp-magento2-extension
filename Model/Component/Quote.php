@@ -104,7 +104,10 @@ class Quote
             'justifiableInterest' => Connector::JUSTIFIABLE_INTEREST_BUSINESS_INITIATION,
             'consentClause' => true,
             'billingAddress' => $this->getBillingAddress(),
-            'quote' => $this->getQuote(),
+            'quote' => [
+                'items' => $this->getQuoteItems(),
+                'totalAmount' => (float) $this->quote->getGrandTotal(),
+            ],
             'customer' => $this->getCustomerData(),
             'orderHistory' => $this->getOrderHistory()
         ];
@@ -134,17 +137,13 @@ class Quote
     }
 
     /**
-     * Get the item quote.
-     * Includes the total amount and a array of basket items.
+     * Get the ID of the quote model.
      *
-     * @return array
+     * @return int
      */
-    protected function getQuote(): array
+    public function getQuoteId(): int
     {
-        return [
-            'items' => $this->getQuoteItems(),
-            'totalAmount' => (float) $this->quote->getGrandTotal(),
-        ];
+        return $this->quote->getId();
     }
 
     /**

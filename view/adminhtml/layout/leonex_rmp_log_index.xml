@@ -8,7 +8,7 @@
                     <arguments>
                         <argument name="id" xsi:type="string">log_id</argument>
                         <argument name="dataSource" xsi:type="object">Leonex\RiskManagementPlatform\Model\ResourceModel\Log\Collection</argument>
-                        <argument name="default_sort" xsi:type="string">id</argument>
+                        <argument name="default_sort" xsi:type="string">log_id</argument>
                         <argument name="default_dir" xsi:type="string">DESC</argument>
                         <argument name="save_parameters_in_session" xsi:type="string">1</argument>
                     </arguments>
@@ -52,11 +52,20 @@
                         </block>
                         <block class="Magento\Backend\Block\Widget\Grid\Column" as="billing_name">
                             <arguments>
-                                <argument name="header" xsi:type="string" translate="true">Bill-to Name</argument>
+                                <argument name="header" xsi:type="string" translate="true">Invoice recipient</argument>
                                 <argument name="index" xsi:type="string">billing_name</argument>
                                 <argument name="type" xsi:type="string">text</argument>
-                                <argument name="filter" xsi:type="boolean">0</argument>
+                                <argument name="filter_index" xsi:type="string">virtual_billing_name_filter</argument>
                                 <argument name="sortable" xsi:type="boolean">0</argument>
+                            </arguments>
+                        </block>
+                        <block class="Magento\Backend\Block\Widget\Grid\Column" as="level">
+                            <arguments>
+                                <argument name="header" xsi:type="string" translate="true">Level</argument>
+                                <argument name="index" xsi:type="string">level</argument>
+                                <argument name="type" xsi:type="string">text</argument>
+                                <argument name="filter_index" xsi:type="string">main_table.level</argument>
+                                <argument name="sortable" xsi:type="boolean">1</argument>
                             </arguments>
                         </block>
                         <block class="Magento\Backend\Block\Widget\Grid\Column" as="tag">
@@ -83,6 +92,30 @@
                                 <argument name="type" xsi:type="string">datetime</argument>
                                 <argument name="sortable" xsi:type="boolean">1</argument>
                                 <argument name="filter" xsi:type="boolean">0</argument>
+                            </arguments>
+                        </block>
+                        <block class="Magento\Backend\Block\Widget\Grid\Column" as="actions">
+                            <arguments>
+                                <argument name="header" xsi:type="string" translate="true">View</argument>
+                                <argument name="type" xsi:type="string">action</argument>
+                                <argument name="getter" xsi:type="string">getId</argument>
+                                <argument name="actions" xsi:type="array">
+                                    <item name="0" xsi:type="array">
+                                        <item name="caption" xsi:type="string" translate="true">View</item>
+                                        <item name="url" xsi:type="array">
+                                            <item name="base" xsi:type="string">*/*/view</item>
+                                            <item name="params" xsi:type="array">
+                                                <item name="test" xsi:type="string">foo</item>
+                                            </item>
+                                        </item>
+                                        <item name="field" xsi:type="string">id</item>
+                                    </item>
+                                </argument>
+                                <argument name="index" xsi:type="string">log_id</argument>
+                                <argument name="sortable" xsi:type="boolean">0</argument>
+                                <argument name="filter" xsi:type="boolean">0</argument>
+                                <argument name="header_css_class" xsi:type="string">col-action</argument>
+                                <argument name="column_css_class" xsi:type="string">col-action</argument>
                             </arguments>
                         </block>
                     </block>

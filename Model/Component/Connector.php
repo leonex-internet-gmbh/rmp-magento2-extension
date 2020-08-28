@@ -5,7 +5,6 @@ namespace Leonex\RiskManagementPlatform\Model\Component;
 use Leonex\RiskManagementPlatform\Helper\Data;
 use Leonex\RiskManagementPlatform\Helper\Logging;
 use Leonex\RiskManagementPlatform\Model\Component;
-use Leonex\RiskManagementPlatform\Model\Logger;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
@@ -84,11 +83,6 @@ class Connector
     protected $responseFactory;
 
     /**
-     * @var Logger
-     */
-    protected $rmpLogger;
-
-    /**
      * Connector constructor.
      *
      * @param Quote           $quote
@@ -103,8 +97,7 @@ class Connector
         Logging $loggingHelper,
         CacheInterface $cacheInterface,
         Api $api,
-        ResponseFactory $responseFactory,
-        Logger $rmpLogger
+        ResponseFactory $responseFactory
     ) {
         $this->quote = $quote;
         $this->helper = $helper;
@@ -112,7 +105,6 @@ class Connector
         $this->cacheInterface = $cacheInterface;
         $this->api = $api;
         $this->responseFactory = $responseFactory;
-        $this->rmpLogger = $rmpLogger;
     }
 
     /**
@@ -124,9 +116,7 @@ class Connector
      */
     public function checkPaymentPre(string $paymentMethod): bool
     {
-        if ($this->loggingHelper->isDebugLoggingEnabled()) {
-            $this->rmpLogger->debug('Started payment check', ['payment_method' => $paymentMethod]);
-        }
+        $this->loggingHelper->log('debug', 'Started payment check.', 'check', ['payment_method' => $paymentMethod], $this->quote->getQuoteId());
 
         $response = $this->loadCachedResponse($this->quote->getQuoteHash());
 
@@ -148,10 +138,12 @@ class Connector
 
         $isAvailable = $response->filterPayment($paymentMethod);
 
-        if ($this->loggingHelper->isDebugLoggingEnabled()) {
-            $msg = $isAvailable ? 'Payment method is available' : 'Payment method is not available';
-            $this->rmpLogger->debug($msg, ['payment_method' => $paymentMethod]);
-        }
+        $msg = $isAvailable ? 'Payment method "%s" is available.' : 'Payment method "%s" is not available.';
+        $msg = sprintf($msg, $paymentMethod);
+        $this->loggingHelper->logToFile('info', $msg, 'check', [
+            'payment_method' => $paymentMethod,
+            'response' => $response->getCleanResponse(),
+        ], $this->quote->getQuoteId());
 
         return $isAvailable;
     }
@@ -169,7 +161,12 @@ class Connector
     {
         /** @var Data $helper */
         $helper = $this->helper;
-        if ($helper->isAdmin() || !$helper->isActive() || !$this->quote->isAddressProvided()) {
+        if ($helper->isAdmin() || !$helper->isActive()) {
+            return false;
+        }
+
+        if (!$this->quote->isAddressProvided()) {
+            $this->loggingHelper->log('debug', 'No address data provided.', 'check', [], $this->quote->getQuoteId());
             return false;
         }
 
@@ -178,6 +175,8 @@ class Connector
         if ($method instanceof MethodInterface) {
             $paymentMethodsToCheck = $helper->getPaymentMethodsToCheck();
             if (!in_array($method->getCode(), $paymentMethodsToCheck, true)) {
+                $msg = sprintf('Payment method "%s" not selected to check.', $method->getCode());
+                $this->loggingHelper->log('debug', $msg, 'check', ['payment_method' => $method->getCode()], $this->quote->getQuoteId());
                 return false;
             }
 
@@ -223,8 +222,8 @@ class Connector
         $cache = $this->getCache();
         $response = $cache->load($hash);
 
-        if ($response && $this->loggingHelper->isDebugLoggingEnabled()) {
-            $this->rmpLogger->debug('Loaded API response from cache.', ['response' => $response]);
+        if ($response) {
+            $this->loggingHelper->log('info', 'Loaded API response from cache.', 'check', ['response' => $response], $this->quote->getQuoteId());
         }
 
         return $response ? $this->responseFactory->create(['jsonString' => $response]) : null;
