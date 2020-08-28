@@ -132,7 +132,20 @@ class Connector
                 // Error message will be logged in API adapter.
                 // We fall back to the modules setting for maximum grand total when platform is offline.
                 $maxGrandTotal = $this->helper->getMaxGrandTotalWhenOffline();
-                return bccomp($maxGrandTotal, $this->quote->getGrandTotal(), 2) >= 0;
+                $isAvailable = bccomp($maxGrandTotal, $this->quote->getGrandTotal(), 2) >= 0;
+
+                if ($isAvailable) {
+                    $msg = sprintf('Payment method "%s" is available although RMP is offline (as it was configured).', $paymentMethod);
+                } else {
+                    $msg = sprintf('Payment method "%s" is not available because RMP is offline.', $paymentMethod);
+                }
+                $this->loggingHelper->logToFile('info', $msg, 'check', [
+                    'payment_method' => $paymentMethod,
+                    'max_grand_total_when_offline' => $maxGrandTotal,
+                    'order_total' => $this->quote->getGrandTotal(),
+                ], $this->quote->getQuoteId());
+
+                return $isAvailable;
             }
         }
 
