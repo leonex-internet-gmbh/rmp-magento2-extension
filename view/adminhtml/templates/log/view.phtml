@@ -12,15 +12,19 @@ $log = $this->getLog();
         </tr>
         <tr>
             <td><?= __('Log ID') ?></td>
-            <td><?= $log->getId() ?> (<?= __('created at') . ' ' . $log->getCreatedAt() ?>)</td>
+            <td><?= $log->getId() ?> (<?= __('created at') . ' ' . $block->formatDate($log->getCreatedAt(), \IntlDateFormatter::MEDIUM, true) ?>)</td>
         </tr>
         <tr>
             <td><?= __('Quote ID') ?></td>
-            <td><?= $log->getQuoteId() ?> (<?= __('created at') . ' ' . $log->getQuote()->getCreatedAt() ?>)</td>
+            <td><?= $log->getQuoteId() ?> (<?= __('created at') . ' ' . $block->formatDate($log->getQuote()->getCreatedAt(), \IntlDateFormatter::MEDIUM, true) ?>)</td>
         </tr>
         <tr>
             <td><?= __('Order ID') ?></td>
-            <td><?= $log->getOrderId() ? $log->getOrder()->getIncrementId() : '' ?> (<?= __('created at') . ' ' . $log->getOrder()->getCreatedAt() ?>)</td>
+            <td>
+                <?php if ($log->getOrderId()): ?>
+                    <?= $log->getOrder()->getIncrementId() ?> (<?= __('created at') . ' ' . $block->formatDate($log->getOrder()->getCreatedAt(), \IntlDateFormatter::MEDIUM, true) ?>)
+                <?php endif ?>
+            </td>
         </tr>
         <tr>
             <td><?= __('Bill-to Name') ?></td>
