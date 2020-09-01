@@ -11,4 +11,18 @@
     <type name="Magento\Customer\Api\AccountManagementInterface">
         <plugin name="rmp_safe_guest_email" type="Leonex\RiskManagementPlatform\Plugin\Customer\Api\SafeGuestEmailPlugin" sortOrder="1" />
     </type>
+    <!-- admin log listing -->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="leonex_rmp_log_listing_data_source" xsi:type="string">LeonexRmpGridLogCollection</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="LeonexRmpGridLogCollection" type="Leonex\RiskManagementPlatform\Ui\DataProvider\Log\Listing\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">rmp_log</argument>
+            <argument name="resourceModel" xsi:type="string">Leonex\RiskManagementPlatform\Model\ResourceModel\Log</argument>
+        </arguments>
+    </virtualType>
 </config>
