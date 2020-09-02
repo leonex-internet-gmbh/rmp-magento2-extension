@@ -9,6 +9,11 @@ use Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
 
 class Quote
 {
+    const GENDER = [
+        1 => 'm',
+        2 => 'f'
+    ];
+
     /**
      * @var \Magento\Quote\Model\Quote
      */
@@ -20,11 +25,6 @@ class Quote
     protected $normalizedQuote;
 
     /**
-     * @var \Magento\Quote\Model\Quote\Address
-     */
-    protected $billingAddress;
-
-    /**
      * @var \Magento\Customer\Api\Data\CustomerInterface
      */
     protected $customer;
@@ -34,14 +34,6 @@ class Quote
      */
     protected $orderFactory;
 
-    const GENDER = [
-        1 => 'm',
-        2 => 'f'
-    ];
-    /**
-     * @var \Magento\Quote\Model\Quote\Address
-     */
-    protected $shippingAddress;
     /**
      * @var Session
      */
@@ -62,8 +54,6 @@ class Quote
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->quote = $this->checkoutSession->getQuote();
-        $this->billingAddress = $this->quote->getBillingAddress();
-        $this->shippingAddress = $this->quote->getShippingAddress();
         $this->customer = $this->quote->getCustomer();
         $this->orderFactory = $orderFactory;
     }
@@ -74,7 +64,7 @@ class Quote
      */
     public function isAddressProvided(): bool
     {
-        $billingAddress = $this->billingAddress;
+        $billingAddress = $this->quote->getBillingAddress();
 
         return $billingAddress->getCompany()
             || $billingAddress->getLastname()
@@ -121,7 +111,7 @@ class Quote
      */
     protected function getBillingAddress(): array
     {
-        $billingAddress = $this->billingAddress;
+        $billingAddress = $this->quote->getBillingAddress();
         $gender = array_key_exists($this->customer->getGender(), self::GENDER) ? self::GENDER[$this->customer->getGender()] : null;
 
         return [
@@ -130,7 +120,7 @@ class Quote
             'firstName' => $billingAddress->getFirstname(),
             'dateOfBirth' => substr($this->quote->getCustomerDob(), 0, 10), // ?
             'birthName' => '',
-            'street' => $this->getStreet(),
+            'street' => $billingAddress->getStreetFull(),
             'zip' => $billingAddress->getPostcode(),
             'city' => $billingAddress->getCity(),
             'country' => strtolower($billingAddress->getCountryId()),
@@ -217,7 +207,7 @@ class Quote
             return $email;
         }
 
-        if ($email = $this->billingAddress->getEmail()) {
+        if ($email = $this->quote->getBillingAddress()->getEmail()) {
             return $email;
         }
 
@@ -237,16 +227,6 @@ class Quote
             'numberOfCompletedOrders' => $this->getNumberOfCompletedOrders(),
             'numberOfUnpaidOrders' => $this->getNumberOfUnpaidOrders(),
         ];
-    }
-
-    /**
-     * Get the first Street from billing address
-     *
-     * @return mixed
-     */
-    protected function getStreet()
-    {
-        return $this->billingAddress->getStreetFull();
     }
 
     /**
