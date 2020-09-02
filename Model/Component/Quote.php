@@ -104,6 +104,7 @@ class Quote
             'justifiableInterest' => Connector::JUSTIFIABLE_INTEREST_BUSINESS_INITIATION,
             'consentClause' => true,
             'billingAddress' => $this->getBillingAddress(),
+            'shippingAddress' => $this->getShippingAddress(), // needed for cache invalidation and comparison in platform
             'quote' => [
                 'items' => $this->getQuoteItems(),
                 'totalAmount' => (float) $this->quote->getGrandTotal(),
@@ -133,6 +134,29 @@ class Quote
             'zip' => $billingAddress->getPostcode(),
             'city' => $billingAddress->getCity(),
             'country' => strtolower($billingAddress->getCountryId()),
+        ];
+    }
+
+    /**
+     * Adjust the data from the shipping address.
+     *
+     * @return array
+     */
+    protected function getShippingAddress(): array
+    {
+        $shippingAddress = $this->quote->getShippingAddress();
+        $gender = array_key_exists($this->customer->getGender(), self::GENDER) ? self::GENDER[$this->customer->getGender()] : null;
+
+        return [
+            'gender' => $gender,
+            'lastName' => $shippingAddress->getLastname(),
+            'firstName' => $shippingAddress->getFirstname(),
+            'dateOfBirth' => substr($this->quote->getCustomerDob(), 0, 10), // ?
+            'birthName' => '',
+            'street' => $shippingAddress->getStreetFull(),
+            'zip' => $shippingAddress->getPostcode(),
+            'city' => $shippingAddress->getCity(),
+            'country' => strtolower($shippingAddress->getCountryId()),
         ];
     }
 
