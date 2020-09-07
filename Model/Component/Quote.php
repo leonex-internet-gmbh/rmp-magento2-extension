@@ -2,6 +2,7 @@
 
 namespace Leonex\RiskManagementPlatform\Model\Component;
 
+use Leonex\RiskManagementPlatform\Helper\CheckoutStatus;
 use Magento\Checkout\Model\Session;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Model\Order;
@@ -40,6 +41,11 @@ class Quote
     protected $checkoutSession;
 
     /**
+     * @var CheckoutStatus
+     */
+    protected $checkoutStatus;
+
+    /**
      * Quote constructor.
      *
      * @param Session                    $checkoutSession
@@ -50,16 +56,18 @@ class Quote
      */
     public function __construct(
         Session $checkoutSession,
+        CheckoutStatus $checkoutStatus,
         CollectionFactoryInterface $orderFactory
     ) {
         $this->checkoutSession = $checkoutSession;
+        $this->checkoutStatus = $checkoutStatus;
         $this->quote = $this->checkoutSession->getQuote();
         $this->customer = $this->quote->getCustomer();
         $this->orderFactory = $orderFactory;
     }
 
     /**
-     * Check whether a billing address has been provided
+     * Check whether a billing address has been provided.
      * @return bool
      */
     public function isAddressProvided(): bool
@@ -111,7 +119,11 @@ class Quote
      */
     protected function getBillingAddress(): array
     {
-        $billingAddress = $this->quote->getBillingAddress();
+        if ($this->checkoutStatus->hasBillingAddressReallyBeenSet()) {
+            $billingAddress = $this->quote->getBillingAddress();
+        } else {
+            $billingAddress = $this->quote->getShippingAddress();
+        }
         $gender = array_key_exists($this->customer->getGender(), self::GENDER) ? self::GENDER[$this->customer->getGender()] : null;
 
         return [
