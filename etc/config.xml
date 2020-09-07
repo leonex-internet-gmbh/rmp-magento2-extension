@@ -11,6 +11,7 @@
             </settings>
             <logging>
                 <debug_logging_enabled>0</debug_logging_enabled>
+                <storage_duration_in_days>14</storage_duration_in_days>
             </logging>
         </leonex_rmp>
     </default>

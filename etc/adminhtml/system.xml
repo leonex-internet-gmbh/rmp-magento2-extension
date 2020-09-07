@@ -50,10 +50,15 @@
             </group>
             <group id="logging" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Logging</label>
-                <field id="debug_logging_enabled" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="debug_logging_enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable debug logging</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>This should only be enabled for debugging purpose as it will slow down your system.</comment>
+                </field>
+                <field id="storage_duration_in_days" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>How many days should logs be stored</label>
+                    <validate>integer</validate>
+                    <comment>Set to 0 to disable log cleaning. Recommended: 14 days</comment>
                 </field>
             </group>
         </section>

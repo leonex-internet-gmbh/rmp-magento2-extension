@@ -62,6 +62,18 @@ class Logging extends AbstractHelper
         return (bool) $this->getConfigFlag('debug_logging_enabled');
     }
 
+    /**
+     * Get the config value for how long logs should be stored.
+     *
+     * @return int
+     */
+    public function getStorageDurationInDays(): int
+    {
+        $value = $this->getConfigValue('storage_duration_in_days');
+
+        return $value > 0 ? (int) $value : 0;
+    }
+
     public function log(string $level, string $message, string $tag = null, array $payload = [], int $quoteId = null, int $orderId = null): void
     {
         if (!$this->isDebugLoggingEnabled()) {

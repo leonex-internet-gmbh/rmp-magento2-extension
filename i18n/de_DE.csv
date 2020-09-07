@@ -8,6 +8,7 @@
 "Created","Erstellt"
 "created at","erstellt am"
 "Enable debug logging","Debug-Logging aktivieren"
+"How many days should logs be stored","Wie viele Tage sollen Logs gespeichert werden"
 "If the RMP is unresponsive, what is the maximum allowed grand total for the selected payment methods? Set to ""0"" if the payment methods should be disabled in that case.","Was soll die maximale Bestellsumme für die ausgewählten Zahlungsmethoden sein, wenn die RMP nicht antwortet? Auf ""0"" setzen, wenn die Zahlungsmethoden in diesem Fall deaktiviert werden sollen."
 "Invoice recipient","Rechnungsempfänger", module, Leonex_RiskManagementPlatform
 "Is Date of Birth required","Ist das Geburtsdatum erforderlich"
@@ -19,6 +20,7 @@
 "Payment methods to check","Zu prüfende Zahlungsmethoden"
 "Quote ID","Warenkorb-ID"
 "Score rating enabled","Bonitätsprüfung aktiviert"
+"Set to 0 to disable log cleaning. Recommended: 14 days","Auf 0 setzen, um das Löschen der Logs zu deaktivieren. Empfohlen: 14 Tage"
 "Tag","Kennzeichen", module, LEONEX_RiskManagementPlatform
 "This should only be enabled for debugging purpose as it will slow down your system.","Dies sollte nur für Debugging-Zwecke aktiviert werden, da es das System verlangsamt."
 "Time of checking","Zeitpunkt der Prüfung"
