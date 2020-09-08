@@ -32,12 +32,9 @@ class CheckoutStatus extends AbstractHelper
     public function hasPaymentBeenSelected(): bool
     {
         $quote = $this->_checkoutSession->getQuote();
-        
-        if ($quote->currentPaymentWasSet()) {
-            return true;
-        }
-        
-        return $quote->getPayment() && $quote->getPayment()->getId();
+        $payment = $quote->getPayment();
+
+        return $payment && ($payment->getId() || $payment->getMethod());
     }
 
     /**
