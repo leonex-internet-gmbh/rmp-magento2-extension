@@ -16,3 +16,15 @@ php bin/magento setup:upgrade
 php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy
 ```
+
+Logging
+-------
+
+It is possible to enable a logging mechanism that collects information about the internal
+processes of the extension. This means that you can see which requests to the Risk Management
+Platform are performed, which data is transmitted and what the responses contained.
+
+To enable the logging sign into the admin backend and go to *Stores -> Configuration ->
+Sales -> Risk Management Platform* and enable the debug logging.
+
+Then you will find all logs at *Sales -> Risk Management Platform Logs*.
