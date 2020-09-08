@@ -19,6 +19,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '2.0.2', '<')) {
             $this->setupLoggingCapabilities($setup);
         }
+
+        if (version_compare($context->getVersion(), '2.1.0', '<')) {
+            $this->setupLoggingCreationIndex($setup);
+        }
 		
 		$setup->endSetup();
 	}
@@ -75,5 +79,19 @@ class UpgradeSchema implements UpgradeSchemaInterface
         ;
 
         $setup->getConnection()->createTable($table);
+    }
+
+    private function setupLoggingCreationIndex(SchemaSetupInterface $setup): void
+    {
+        $setup->getConnection()->addIndex(
+            $setup->getTable('rmp_log'),
+            $setup->getIdxName(
+                $setup->getTable('rmp_log'),
+                ['created_at'],
+                \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX
+            ),
+            ['created_at'],
+            \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX
+        );
     }
 }
