@@ -10,9 +10,13 @@ use Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
 
 class Quote
 {
-    const GENDER = [
+    /**
+     * Mapping of Magento gender values to RMP gender values.
+     */
+    const GENDER_MAPPING = [
         1 => 'm',
-        2 => 'f'
+        2 => 'f',
+        3 => 'd',
     ];
 
     /**
@@ -124,7 +128,9 @@ class Quote
         } else {
             $billingAddress = $this->quote->getShippingAddress();
         }
-        $gender = array_key_exists($this->customer->getGender(), self::GENDER) ? self::GENDER[$this->customer->getGender()] : null;
+
+        $gender = $this->quote->getCustomerGender() ?: $this->customer->getGender();
+        $gender = self::GENDER_MAPPING[$gender] ?? null;
 
         return [
             'gender' => $gender,
@@ -147,7 +153,9 @@ class Quote
     protected function getShippingAddress(): array
     {
         $shippingAddress = $this->quote->getShippingAddress();
-        $gender = array_key_exists($this->customer->getGender(), self::GENDER) ? self::GENDER[$this->customer->getGender()] : null;
+
+        $gender = $this->quote->getCustomerGender() ?: $this->customer->getGender();
+        $gender = self::GENDER_MAPPING[$gender] ?? null;
 
         return [
             'gender' => $gender,
