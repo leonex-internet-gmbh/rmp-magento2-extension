@@ -49,6 +49,10 @@ class UpgradeData implements UpgradeDataInterface
             $this->setupLoggingCapabilities($setup);
         }
 
+        if (version_compare($context->getVersion(), '2.2.0', '<')) {
+            $this->addPrefixGenderMappingDefaults($setup);
+        }
+
         $setup->endSetup();
     }
 
@@ -96,5 +100,23 @@ class UpgradeData implements UpgradeDataInterface
             ['path = ?' => Data::XML_PATH . 'debug_logging_enabled']
         );
         
+    }
+
+    private function addPrefixGenderMappingDefaults(ModuleDataSetupInterface $setup): void
+    {
+        $configTable = $setup->getTable('core_config_data');
+
+        // We have to insert the defaults, defined in the config.xml, into the database
+        // as a workaround for https://github.com/magento/magento2/issues/30314
+        $setup->getConnection()->insert($configTable, [
+            'scope' => 'default',
+            'scope_id' => 0,
+            'path' => 'leonex_rmp/address/prefix_gender_mapping',
+            'value' => json_encode([
+                'item1' => ['prefix' => 'Herr', 'gender' => 'm'],
+                'item2' => ['prefix' => 'Frau', 'gender' => 'f'],
+                'item3' => ['prefix' => 'Divers', 'gender' => 'd'],
+            ]),
+        ]);
     }
 }

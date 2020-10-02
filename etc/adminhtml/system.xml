@@ -48,7 +48,15 @@
                     <label>Tooltip Date of Birth</label>
                 </field>
             </group>
-            <group id="logging" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="address" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Customer and Address Options</label>
+                <field id="prefix_gender_mapping" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Mapping between prefix and gender</label>
+                    <frontend_model>Leonex\RiskManagementPlatform\Block\Adminhtml\Form\Field\PrefixGenderMapping</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                </field>
+            </group>
+            <group id="logging" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Logging</label>
                 <field id="debug_logging_enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable debug logging</label>

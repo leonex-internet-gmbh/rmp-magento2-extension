@@ -2,8 +2,10 @@
 
 namespace Leonex\RiskManagementPlatform\Model\Component;
 
+use Leonex\RiskManagementPlatform\Helper\Address;
 use Leonex\RiskManagementPlatform\Helper\CheckoutStatus;
 use Magento\Checkout\Model\Session;
+use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
@@ -45,6 +47,11 @@ class Quote
     protected $checkoutSession;
 
     /**
+     * @var Address
+     */
+    protected $addressHelper;
+
+    /**
      * @var CheckoutStatus
      */
     protected $checkoutStatus;
@@ -60,10 +67,12 @@ class Quote
      */
     public function __construct(
         Session $checkoutSession,
+        Address $addressHelper,
         CheckoutStatus $checkoutStatus,
         CollectionFactoryInterface $orderFactory
     ) {
         $this->checkoutSession = $checkoutSession;
+        $this->addressHelper = $addressHelper;
         $this->checkoutStatus = $checkoutStatus;
         $this->quote = $this->checkoutSession->getQuote();
         $this->customer = $this->quote->getCustomer();
@@ -129,11 +138,8 @@ class Quote
             $billingAddress = $this->quote->getShippingAddress();
         }
 
-        $gender = $this->quote->getCustomerGender() ?: $this->customer->getGender();
-        $gender = self::GENDER_MAPPING[$gender] ?? null;
-
         return [
-            'gender' => $gender,
+            'gender' => $this->getGender($billingAddress),
             'lastName' => $billingAddress->getLastname(),
             'firstName' => $billingAddress->getFirstname(),
             'dateOfBirth' => substr($this->quote->getCustomerDob(), 0, 10), // ?
@@ -154,11 +160,8 @@ class Quote
     {
         $shippingAddress = $this->quote->getShippingAddress();
 
-        $gender = $this->quote->getCustomerGender() ?: $this->customer->getGender();
-        $gender = self::GENDER_MAPPING[$gender] ?? null;
-
         return [
-            'gender' => $gender,
+            'gender' => $this->getGender($shippingAddress),
             'lastName' => $shippingAddress->getLastname(),
             'firstName' => $shippingAddress->getFirstname(),
             'dateOfBirth' => substr($this->quote->getCustomerDob(), 0, 10), // ?
@@ -327,5 +330,31 @@ class Quote
         }
 
         return $col->count();
+    }
+
+    /**
+     * Try to extract the gender from a quote address. If this is not possible
+     * a fallback is done to customer gender or prefix.
+     *
+     * @param AddressInterface $address
+     * @return string|null
+     */
+    protected function getGender(AddressInterface $address): ?string
+    {
+        if ($address->getPrefix()) {
+            $gender = $this->addressHelper->mapPrefixToGender($address->getPrefix());
+            if ($gender) {
+                return $gender;
+            }
+        }
+
+        $gender = $this->quote->getCustomerGender() ?: $this->customer->getGender();
+        $gender = self::GENDER_MAPPING[$gender] ?? null;
+        if ($gender) {
+            return $gender;
+        }
+
+        $prefix = $this->quote->getCustomerPrefix() ?: $this->customer->getPrefix();
+        return $this->addressHelper->mapPrefixToGender((string) $prefix);
     }
 }
