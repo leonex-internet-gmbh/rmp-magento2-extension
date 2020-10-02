@@ -37,6 +37,9 @@
                     <validate>validate-number validate-zero-or-greater</validate>
                     <comment>If the RMP is unresponsive, what is the maximum allowed grand total for the selected payment methods? Set to "0" if the payment methods should be disabled in that case.</comment>
                 </field>
+            </group>
+            <group id="address" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Customer and Address Options</label>
                 <field id="is_dob_required" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>Is Date of Birth required</label>
@@ -47,9 +50,6 @@
                        showInStore="1">
                     <label>Tooltip Date of Birth</label>
                 </field>
-            </group>
-            <group id="address" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Customer and Address Options</label>
                 <field id="prefix_gender_mapping" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mapping between prefix and gender</label>
                     <frontend_model>Leonex\RiskManagementPlatform\Block\Adminhtml\Form\Field\PrefixGenderMapping</frontend_model>

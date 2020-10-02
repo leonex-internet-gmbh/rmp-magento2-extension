@@ -144,14 +144,4 @@ class Data extends AbstractHelper
     {
         return (float) $this->getConfigValue('max_grand_total_when_offline');
     }
-
-    public function getDobFieldTooltip()
-    {
-        return trim($this->getConfigValue('dob_tooltip'));
-    }
-
-    public function isDobFieldRequired()
-    {
-        return $this->getConfigFlag('is_dob_required');
-    }
 }

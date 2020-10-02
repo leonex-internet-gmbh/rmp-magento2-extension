@@ -118,5 +118,17 @@ class UpgradeData implements UpgradeDataInterface
                 'item3' => ['prefix' => 'Divers', 'gender' => 'd'],
             ]),
         ]);
+
+        $setup->getConnection()->update(
+            $configTable,
+            ['path' => 'leonex_rmp/address/dob_tooltip'],
+            ['path = ?' => 'leonex_rmp/settings/dob_tooltip']
+        );
+
+        $setup->getConnection()->update(
+            $configTable,
+            ['path' => 'leonex_rmp/address/is_dob_required'],
+            ['path = ?' => 'leonex_rmp/settings/is_dob_required']
+        );
     }
 }

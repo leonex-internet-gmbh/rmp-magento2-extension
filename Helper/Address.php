@@ -90,4 +90,14 @@ class Address extends AbstractHelper
         }
         return null;
     }
+
+    public function getDobFieldTooltip(): string
+    {
+        return trim($this->getConfigValue('dob_tooltip'));
+    }
+
+    public function isDobFieldRequired()
+    {
+        return $this->getConfigFlag('is_dob_required');
+    }
 }
