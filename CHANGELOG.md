@@ -6,6 +6,7 @@ Release 2.2.0
 
 * Feature: Support of 'diverse' as third gender. Magento value '3' is mapped
   to RMP API value 'd'.
+* Feature: Added configurable mapping between address prefix and gender
 
 
 Release 2.1.1
