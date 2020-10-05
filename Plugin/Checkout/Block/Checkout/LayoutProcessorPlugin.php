@@ -2,23 +2,23 @@
 
 namespace Leonex\RiskManagementPlatform\Plugin\Checkout\Block\Checkout;
 
-use Leonex\RiskManagementPlatform\Helper\Data;
+use Leonex\RiskManagementPlatform\Helper\Address;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 class LayoutProcessorPlugin
 {
     /**
-     * @var Data
+     * @var Address
      */
-    protected $helper;
+    protected $addressHelper;
     /**
      * @var TimezoneInterface
      */
     protected $localeDate;
 
-    public function __construct(Data $helper, TimezoneInterface $localeDate)
+    public function __construct(Address $addressHelper, TimezoneInterface $localeDate)
     {
-        $this->helper = $helper;
+        $this->addressHelper = $addressHelper;
         $this->localeDate = $localeDate;
     }
 
@@ -47,7 +47,7 @@ class LayoutProcessorPlugin
             'provider' => 'checkoutProvider',
             'sortOrder' => 999,
             'validation' => [
-                'required-entry' => $this->helper->isDobFieldRequired()
+                'required-entry' => $this->addressHelper->isDobRequired()
             ],
             'options' => [],
             'filterBy' => null,
@@ -56,7 +56,7 @@ class LayoutProcessorPlugin
             'value' => '' // value field is used to set a default value of the attribute
         ];
 
-        $toolTipHtml = $this->helper->getDobFieldTooltip();
+        $toolTipHtml = $this->addressHelper->getDobTooltip();
         if ($toolTipHtml) {
             $customField['tooltip'] = [
                 'description' => $toolTipHtml,

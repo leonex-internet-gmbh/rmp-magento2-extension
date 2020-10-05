@@ -71,7 +71,11 @@ class Address extends AbstractHelper
      */
     public function getPrefixGenderMapping()
     {
-        return $this->getConfigValue('prefix_gender_mapping');
+        $mapping = $this->getConfigValue('prefix_gender_mapping');
+        if (is_array($mapping)) {
+            return $mapping;
+        }
+        return json_decode($mapping, true);
     }
 
     /**
@@ -91,12 +95,12 @@ class Address extends AbstractHelper
         return null;
     }
 
-    public function getDobFieldTooltip(): string
+    public function getDobTooltip(): string
     {
         return trim($this->getConfigValue('dob_tooltip'));
     }
 
-    public function isDobFieldRequired()
+    public function isDobRequired()
     {
         return $this->getConfigFlag('is_dob_required');
     }
