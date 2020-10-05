@@ -17,6 +17,15 @@ php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy
 ```
 
+Supported Environment
+---------------------
+
+| RMP Extension | Magento   | PHP       |
+|---------------|-----------|-----------|
+| 2.2.0         | 2.2 - 2.4 | 7.1 - 7.4 |
+| 1.2.3 - 2.1.1 | 2.2 - 2.4 | 7.1 - 7.3 |
+| 1.0.0 - 1.2.2 | 2.3 - 2.4 | 7.1 - 7.3 |
+
 Logging
 -------
 
