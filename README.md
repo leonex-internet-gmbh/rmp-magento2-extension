@@ -37,3 +37,8 @@ To enable the logging sign into the admin backend and go to *Stores -> Configura
 Sales -> Risk Management Platform* and enable the debug logging.
 
 Then you will find all logs at *Sales -> Risk Management Platform Logs*.
+
+Changelog
+---------
+
+Please refer to the [CHANGELOG.md](CHANGELOG.md).
