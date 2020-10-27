@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+Release 2.2.1
+-------------
+
+* Bug: Fixed issue #2 occuring when module is used in admin or webapi area
+
 Release 2.2.0
 -------------
 

@@ -11,6 +11,7 @@
     <type name="Magento\Customer\Api\AccountManagementInterface">
         <plugin name="rmp_safe_guest_email" type="Leonex\RiskManagementPlatform\Plugin\Customer\Api\SafeGuestEmailPlugin" sortOrder="1" />
     </type>
+
     <!-- admin log listing -->
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
@@ -25,4 +26,23 @@
             <argument name="resourceModel" xsi:type="string">Leonex\RiskManagementPlatform\Model\ResourceModel\Log</argument>
         </arguments>
     </virtualType>
+
+    <!-- custom logger -->
+    <virtualType name="rmp_log_handler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/rmp.log</argument>
+         </arguments>
+    </virtualType>
+    <type name="Leonex\RiskManagementPlatform\Model\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">rmp</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="rmp" xsi:type="object">rmp_log_handler</item>
+                <!-- inject the system handler, but as non-shared, because in Logger
+                     constructor the minimum log level will be lifted to 'error' and this must not
+                     be done in the global instance. -->
+                <item name="system" xsi:type="object" shared="false">Magento\Framework\Logger\Handler\System</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
