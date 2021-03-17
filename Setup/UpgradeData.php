@@ -16,16 +16,17 @@ use Magento\Framework\Setup\UpgradeDataInterface;
  */
 class UpgradeData implements UpgradeDataInterface
 {
-    protected $paymentHelper;
     protected $sessionStartChecker;
     protected $appState;
 
+    protected $initialConfig;
+
     public function __construct(
-        PaymentHelper $paymentHelper,
+        \Magento\Framework\App\Config\Initial $initialConfig,
         SessionStartChecker $sessionStartChecker,
         State $appState
     ) {
-        $this->paymentHelper = $paymentHelper;
+        $this->initialConfig = $initialConfig;
         $this->sessionStartChecker = $sessionStartChecker;
         $this->appState = $appState;
     }
@@ -74,7 +75,7 @@ class UpgradeData implements UpgradeDataInterface
             ->query();
         $methodSelectionRows = $stm->fetchAll();
 
-        $paymentMethodsImploded = implode(',', array_keys($this->paymentHelper->getPaymentMethodList(true)));
+        $paymentMethodsImploded = implode(',', array_keys($this->getPaymentMethods()));
 
         // check if the extension is enabled already
         if (count($activeRows) > 0 && empty($methodSelectionRows)) {
@@ -99,7 +100,7 @@ class UpgradeData implements UpgradeDataInterface
             ['path' => Logging::XML_PATH . 'debug_logging_enabled'],
             ['path = ?' => Data::XML_PATH . 'debug_logging_enabled']
         );
-        
+
     }
 
     private function addPrefixGenderMappingDefaults(ModuleDataSetupInterface $setup): void
@@ -130,5 +131,10 @@ class UpgradeData implements UpgradeDataInterface
             ['path' => 'leonex_rmp/address/is_dob_required'],
             ['path = ?' => 'leonex_rmp/settings/is_dob_required']
         );
+    }
+
+    protected function getPaymentMethods()
+    {
+        return $this->initialConfig->getData('default')[PaymentHelper::XML_PATH_PAYMENT_METHODS];
     }
 }
