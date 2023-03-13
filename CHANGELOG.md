@@ -1,6 +1,24 @@
 CHANGELOG
 =========
 
+Next release
+------------
+
+* Docs: Added paragraph about the most important configuration fields
+
+
+Release 2.2.3
+-------------
+
+* Adjusted PHP version constaint (support for PHP >= 8.0)
+
+
+Release 2.2.2
+-------------
+
+* Bug: Fixed issue in upgrade process for Magento >= 2.4.2
+
+
 Release 2.2.1
 -------------
 
