@@ -3,8 +3,8 @@ Risk Management Platform Integration for Magento 2
 
 This Extension integrates a credit check and more made by the LEONEX Risk Management Platform into your order process. Extensive configuration and evaluation options is provided in the Platform
 
-How to install
---------------
+Installation
+------------
 
 ### Install via composer (recommend)
 
@@ -22,7 +22,7 @@ Supported Environment
 
 | RMP Extension | Magento   | PHP       |
 |---------------|-----------|-----------|
-| 2.2.0         | 2.2 - 2.4 | 7.1 - 7.4 |
+| 2.2.0         | 2.2 - 2.4 | 7.1 - 8.2 |
 | 1.2.3 - 2.1.1 | 2.2 - 2.4 | 7.1 - 7.3 |
 | 1.0.0 - 1.2.2 | 2.3 - 2.4 | 7.1 - 7.3 |
 
