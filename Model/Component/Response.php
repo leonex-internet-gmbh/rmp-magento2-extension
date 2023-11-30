@@ -55,12 +55,10 @@ class Response extends DataObject
 
     /**
      * Set Hash from given Quote
-     *
-     * @param Quote $quote
      */
-    public function setHash(Quote $quote)
+    public function setHash(string $hash): void
     {
-        $this->hash = $quote->getQuoteHash();
+        $this->hash = $hash;
     }
 
     /**

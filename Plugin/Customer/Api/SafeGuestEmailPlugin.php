@@ -33,7 +33,7 @@ class SafeGuestEmailPlugin
      */
     public function afterIsEmailAvailable(AccountManagementInterface $accountManagement, $result, $customerEmail)
     {
-        $this->checkoutSession->setStepData('billing_address', 'leonex.rmp.email', $customerEmail);
+        $this->checkoutSession->setStepData('shipping_address', 'leonex.rmp.email', $customerEmail);
         return $result;
     }
 }

@@ -5,6 +5,7 @@ namespace Leonex\RiskManagementPlatform\Helper;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Quote\Api\Data\CartInterface;
 
 /**
  * Leonex\RiskManagementPlatform\Helper\CheckoutStatus
@@ -38,27 +39,37 @@ class CheckoutStatus extends AbstractHelper
     }
 
     /**
-     * For logged in customers Magento creates the shipping and billing addresses
-     * automatically after the customers enters the checkout process.
-     * But we need to know when the customer really has setup his billing address.
+     * Check whether a billing address has been provided.
+     */
+    public function isAddressProvided(CartInterface $quote): bool
+    {
+        $billingAddress = $quote->getBillingAddress();
+
+        return $billingAddress->getCompany()
+            || $billingAddress->getLastname()
+            || $billingAddress->getFirstname();
+    }
+
+    /**
+     * Magento creates the shipping and billing addresses automatically after the customers enters the checkout process.
+     * But we need to know when the customer really has entered his billing address.
      *
      * @return bool
      */
-    public function hasBillingAddressReallyBeenSet(): bool
+    public function hasBillingAddressReallyBeenSet(?CartInterface $quote = null): bool
     {
-        $quote = $this->_checkoutSession->getQuote();
-        $billingAddress = $quote->getBillingAddress();
-
-        if (!$billingAddress->getCompany() && !$billingAddress->getLastname() && !$billingAddress->getFirstname()) {
-            return false;
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Not passing the quote model is deprecated and will fail in 3.0.0.');
+            $quote = $this->_checkoutSession->getQuote();
         }
 
+        $billingAddress = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
 
         // The billing address is deleted and a new model is generated
         // as soon as the customer has selected or entered the billing address.
-        // So if the creation date is postponed, we now, that the billing address
+        // So if the creation date is postponed, we know, that the billing address
         // has really been set by the user.
-        return new \DateTime($billingAddress->getCreatedAt()) > new \DateTime($shippingAddress->getCreatedAt());
+        return !$billingAddress->getUpdatedAt() || $billingAddress->getUpdatedAt() > $shippingAddress->getCreatedAt(); // comparison of the date string is working fine
     }
 }

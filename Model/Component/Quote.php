@@ -5,7 +5,8 @@ namespace Leonex\RiskManagementPlatform\Model\Component;
 use Leonex\RiskManagementPlatform\Helper\Address;
 use Leonex\RiskManagementPlatform\Helper\CheckoutStatus;
 use Magento\Checkout\Model\Session;
-use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Model\Quote\Address as AddressModel;
+use Magento\Quote\Model\Quote as QuoteModel;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
@@ -81,24 +82,26 @@ class Quote
 
     /**
      * Check whether a billing address has been provided.
-     * @return bool
+     *
+     * @deprecad since 2.3.0 - use \Leonex\RiskManagementPlatform\Helper\CheckoutStatus::isAddressProvided($quote) instead.
      */
     public function isAddressProvided(): bool
     {
-        $billingAddress = $this->quote->getBillingAddress();
+        trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Use \Leonex\RiskManagementPlatform\Helper\CheckoutStatus::isAddressProvided($quote) instead.');
 
-        return $billingAddress->getCompany()
-            || $billingAddress->getLastname()
-            || $billingAddress->getFirstname();
+        return $this->checkoutStatus->isAddressProvided($this->quote);
     }
 
     /**
      * Get the quote's grand total.
      *
+     * @deprecated since 2.3.0, use the getGrandTotal of the quote model directly.
      * @return float
      */
     public function getGrandTotal(): float
     {
+        trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Use the getGrandTotal of the quote model directly.');
+
         return (float) $this->quote->getGrandTotal();
     }
 
@@ -108,41 +111,47 @@ class Quote
      *
      * @return array
      */
-    public function getNormalizedQuote(): array
+    public function getNormalizedQuote(?QuoteModel $quote = null): array
     {
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getNormalizedQuote method of the quote component model without passing the quote is deprecated.');
+            $quote = $this->quote;
+        }
+
         return [
-            'customerSessionId' => $this->quote->getId(),
+            'customerSessionId' => $quote->getId(),
             'justifiableInterest' => Connector::JUSTIFIABLE_INTEREST_BUSINESS_INITIATION,
             'consentClause' => true,
-            'billingAddress' => $this->getBillingAddress(),
-            'shippingAddress' => $this->getShippingAddress(), // needed for cache invalidation and comparison in platform
+            'billingAddress' => $this->normalizeBillingAddress($quote),
+            'shippingAddress' => $this->normalizeShippingAddress($quote), // needed for cache invalidation and comparison in platform
             'quote' => [
-                'items' => $this->getQuoteItems(),
-                'totalAmount' => (float) $this->quote->getGrandTotal(),
+                'items' => $this->getQuoteItems($quote),
+                'totalAmount' => (float) $quote->getGrandTotal(),
             ],
-            'customer' => $this->getCustomerData(),
-            'orderHistory' => $this->getOrderHistory()
+            'customer' => $this->getCustomerData($quote),
+            'orderHistory' => $this->getOrderHistory($quote)
         ];
     }
 
     /**
-     * Adjust the data from the billing address.
-     *
-     * @return array
+     * Normalize the data from the billing address.
      */
-    protected function getBillingAddress(): array
+    protected function normalizeBillingAddress(QuoteModel $quote): ?array
     {
-        if ($this->checkoutStatus->hasBillingAddressReallyBeenSet()) {
-            $billingAddress = $this->quote->getBillingAddress();
-        } else {
-            $billingAddress = $this->quote->getShippingAddress();
+        // In Magento's checkout the shipping address is inquired first, but those data is stored in the billing address, too.
+        // But in the RMP this behaviour has some bad impact on the scoring. This is why we'll only send null, here.
+        if (!$this->checkoutStatus->hasBillingAddressReallyBeenSet($quote)) {
+            return null;
         }
+
+        $billingAddress = $quote->getBillingAddress();
+        $dob = $quote->getCustomerDob();
 
         return [
             'gender' => $this->getGender($billingAddress),
             'lastName' => $billingAddress->getLastname(),
             'firstName' => $billingAddress->getFirstname(),
-            'dateOfBirth' => substr($this->quote->getCustomerDob(), 0, 10), // ?
+            'dateOfBirth' => $dob ? substr($dob, 0, 10) : null,
             'birthName' => '',
             'street' => $billingAddress->getStreetFull(),
             'zip' => $billingAddress->getPostcode(),
@@ -152,19 +161,18 @@ class Quote
     }
 
     /**
-     * Adjust the data from the shipping address.
-     *
-     * @return array
+     * Normalize the data from the shipping address.
      */
-    protected function getShippingAddress(): array
+    protected function normalizeShippingAddress(QuoteModel $quote): array
     {
-        $shippingAddress = $this->quote->getShippingAddress();
+        $shippingAddress = $quote->getShippingAddress();
+        $dob = $quote->getCustomerDob();
 
         return [
             'gender' => $this->getGender($shippingAddress),
             'lastName' => $shippingAddress->getLastname(),
             'firstName' => $shippingAddress->getFirstname(),
-            'dateOfBirth' => substr($this->quote->getCustomerDob(), 0, 10), // ?
+            'dateOfBirth' => $dob ? substr($dob, 0, 10) : null,
             'birthName' => '',
             'street' => $shippingAddress->getStreetFull(),
             'zip' => $shippingAddress->getPostcode(),
@@ -177,10 +185,21 @@ class Quote
      * Get the ID of the quote model.
      *
      * @return int
+     * @deprecated since 2.3.0
      */
     public function getQuoteId(): int
     {
+        trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getQuoteId() method of the quote component model is deprecated.');
         return $this->quote->getId();
+    }
+
+    /**
+     * @deprecated since 2.3.0
+     */
+    public function getQuote(): ?QuoteModel
+    {
+        trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getQuote method of the quote component model is deprecated.');
+        return $this->quote;
     }
 
     /**
@@ -188,12 +207,17 @@ class Quote
      *
      * @return array
      */
-    protected function getQuoteItems(): array
+    protected function getQuoteItems(?QuoteModel $quote = null): array
     {
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getQuoteItems method of the quote component model without passing the quote is deprecated.');
+            $quote = $this->quote;
+        }
+
         $quoteItems = [];
 
         /** @var Item $item */
-        foreach ($this->quote->getAllItems() as $item) {
+        foreach ($quote->getAllItems() as $item) {
             if (is_null($item->getParentItemId())) {
                 $quoteItems[] = [
                     'sku' => $item->getSku(),
@@ -211,11 +235,16 @@ class Quote
      *
      * @return array
      */
-    protected function getCustomerData(): array
+    protected function getCustomerData(?QuoteModel $quote = null): array
     {
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getCustomerData method of the quote component model without passing the quote is deprecated.');
+            $quote = $this->quote;
+        }
+
         return [
-            'number' => $this->customer->getId(),
-            'email' => $this->getCustomerEmail(),
+            'number' => $quote->getCustomer()->getId(),
+            'email' => $this->getCustomerEmail($quote),
         ];
     }
 
@@ -224,17 +253,22 @@ class Quote
      *
      * @return string|null
      */
-    public function getCustomerEmail(): ?string
+    public function getCustomerEmail(?QuoteModel $quote = null): ?string
     {
-        if ($email = $this->quote->getCustomerEmail()) {
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getCustomerData method of the quote component model without passing the quote is deprecated.');
+            $quote = $this->quote;
+        }
+
+        if ($email = $quote->getBillingAddress()->getEmail()) {
             return $email;
         }
 
-        if ($email = $this->quote->getBillingAddress()->getEmail()) {
+        if ($email = $quote->getCustomerEmail()) {
             return $email;
         }
 
-        $email = $this->checkoutSession->getStepData('billing_address', 'leonex.rmp.email');
+        $email = $this->checkoutSession->getStepData('shipping_address', 'leonex.rmp.email');
         return $email ?: null;
     }
 
@@ -243,12 +277,17 @@ class Quote
      *
      * @return array
      */
-    protected function getOrderHistory(): array
+    protected function getOrderHistory(?QuoteModel $quote = null): array
     {
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getOrderHistory method of the quote component model without passing the quote is deprecated.');
+            $quote = $this->quote;
+        }
+
         return [
-            'numberOfCanceledOrders' => $this->getNumberOfCanceledOrders(),
-            'numberOfCompletedOrders' => $this->getNumberOfCompletedOrders(),
-            'numberOfUnpaidOrders' => $this->getNumberOfUnpaidOrders(),
+            'numberOfCanceledOrders' => $this->getNumberOfCanceledOrders($quote),
+            'numberOfCompletedOrders' => $this->getNumberOfCompletedOrders($quote),
+            'numberOfUnpaidOrders' => $this->getNumberOfUnpaidOrders($quote),
         ];
     }
 
@@ -257,23 +296,13 @@ class Quote
      *
      * @return string
      */
-    public function getQuoteHash(): string
+    public function getQuoteHash(?QuoteModel $quote = null): string
     {
-        $json = \json_encode($this->getNormalizedQuote());
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getQuoteHash method of the quote component model without passing the quote is deprecated.');
+        }
+        $json = \json_encode($this->getNormalizedQuote($quote));
         return hash('sha256', $json);
-    }
-
-    /**
-     * compare a given md5 with a new generated from the quote.
-     *
-     * @param $hash
-     *
-     * @return bool
-     */
-    public function hashCompare($hash)
-    {
-        $return = $hash == $this->getQuoteHash();
-        return $return;
     }
 
     /**
@@ -281,9 +310,14 @@ class Quote
      *
      * @return int
      */
-    protected function getNumberOfCanceledOrders()
+    protected function getNumberOfCanceledOrders(?QuoteModel $quote = null)
     {
-        return $this->getNumberOf([Order::STATE_CANCELED]);
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getNumberOfCanceledOrders method of the quote component model without passing the quote is deprecated.');
+            $quote = $this->quote;
+        }
+
+        return $this->getNumberOf([Order::STATE_CANCELED], $quote);
     }
 
     /**
@@ -291,9 +325,14 @@ class Quote
      *
      * @return int
      */
-    protected function getNumberOfCompletedOrders()
+    protected function getNumberOfCompletedOrders(?QuoteModel $quote = null)
     {
-        return $this->getNumberOf([Order::STATE_COMPLETE]);
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getNumberOfCompletedOrders method of the quote component model without passing the quote is deprecated.');
+            $quote = $this->quote;
+        }
+
+        return $this->getNumberOf([Order::STATE_COMPLETE], $quote);
     }
 
     /**
@@ -301,14 +340,19 @@ class Quote
      *
      * @return int
      */
-    protected function getNumberOfUnpaidOrders(): int
+    protected function getNumberOfUnpaidOrders(?QuoteModel $quote = null): int
     {
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getNumberOfUnpaidOrders method of the quote component model without passing the quote is deprecated.');
+            $quote = $this->quote;
+        }
+
         return $this->getNumberOf([
             Order::STATE_PENDING_PAYMENT,
             Order::STATE_NEW,
             Order::STATE_HOLDED,
             Order::STATE_PROCESSING
-        ]);
+        ], $quote);
     }
 
     /**
@@ -318,14 +362,19 @@ class Quote
      *
      * @return int
      */
-    protected function getNumberOf(array $states): int
+    protected function getNumberOf(array $states, ?QuoteModel $quote = null): int
     {
-        $col = $this->orderFactory->create($this->customer->getId());
+        if (!$quote) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the getNumberOf method of the quote component model without passing the quote is deprecated.');
+            $quote = $this->quote;
+        }
+
+        $col = $this->orderFactory->create($quote->getCustomer()->getId());
         $col->addFieldToSelect('entity_id');
         $col->addFieldToFilter('state', $states);
 
-        if (!$this->customer->getId()) {
-            $email = $this->getCustomerEmail();
+        if (!$quote->getCustomer()->getId()) {
+            $email = $this->getCustomerEmail($quote);
             $col->addFieldToFilter('customer_email', ['like' => $email]);
         }
 
@@ -336,10 +385,9 @@ class Quote
      * Try to extract the gender from a quote address. If this is not possible
      * a fallback is done to customer gender or prefix.
      *
-     * @param AddressInterface $address
      * @return string|null
      */
-    protected function getGender(AddressInterface $address): ?string
+    protected function getGender(AddressModel $address): ?string
     {
         if ($address->getPrefix()) {
             $gender = $this->addressHelper->mapPrefixToGender($address->getPrefix());
@@ -348,13 +396,15 @@ class Quote
             }
         }
 
-        $gender = $this->quote->getCustomerGender() ?: $this->customer->getGender();
+        $quote = $address->getQuote();
+
+        $gender = $quote->getCustomerGender() ?: $quote->getCustomer()->getGender();
         $gender = self::GENDER_MAPPING[$gender] ?? null;
         if ($gender) {
             return $gender;
         }
 
-        $prefix = $this->quote->getCustomerPrefix() ?: $this->customer->getPrefix();
+        $prefix = $quote->getCustomerPrefix() ?: $quote->getCustomer()->getPrefix();
         return $this->addressHelper->mapPrefixToGender((string) $prefix);
     }
 }

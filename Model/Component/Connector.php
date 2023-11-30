@@ -2,6 +2,7 @@
 
 namespace Leonex\RiskManagementPlatform\Model\Component;
 
+use Leonex\RiskManagementPlatform\Helper\CheckoutStatus;
 use Leonex\RiskManagementPlatform\Helper\Data;
 use Leonex\RiskManagementPlatform\Helper\Logging;
 use Leonex\RiskManagementPlatform\Model\Component;
@@ -9,6 +10,7 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Model\MethodInterface;
+use Magento\Quote\Model\Quote as QuoteModel;
 
 class Connector
 {
@@ -62,6 +64,9 @@ class Connector
      */
     protected $helper;
 
+    /** @var CheckoutStatus */
+    protected $checkoutStatusHelper;
+
     /**
      * @var Logging
      */
@@ -94,6 +99,7 @@ class Connector
     public function __construct(
         Component\Quote $quote,
         Data $helper,
+        CheckoutStatus $checkoutStatusHelper,
         Logging $loggingHelper,
         CacheInterface $cacheInterface,
         Api $api,
@@ -101,6 +107,7 @@ class Connector
     ) {
         $this->quote = $quote;
         $this->helper = $helper;
+        $this->checkoutStatusHelper = $checkoutStatusHelper;
         $this->loggingHelper = $loggingHelper;
         $this->cacheInterface = $cacheInterface;
         $this->api = $api;
@@ -109,30 +116,32 @@ class Connector
 
     /**
      * Check if Paymentmethod is available
-     *
-     * @param string $paymentMethod
-     *
-     * @return bool
      */
-    public function checkPaymentPre(string $paymentMethod): bool
+    public function checkPaymentPre(string $paymentMethod, ?QuoteModel $quote = null): bool
     {
-        $this->loggingHelper->log('debug', 'Started payment check.', 'check', ['payment_method' => $paymentMethod], $this->quote->getQuoteId());
+        if ($quote === null) {
+            trigger_deprecation('leonex/magento-module-rmp-connector', '2.3.0', 'Calling the connector without providing the quote is deprecated.');
+            $quote = $this->quote->getQuote();
+        }
 
-        $response = $this->loadCachedResponse($this->quote->getQuoteHash());
+        $this->loggingHelper->log('debug', 'Started payment check.', 'check', ['payment_method' => $paymentMethod], $quote->getId());
+
+        $quoteHash = $this->quote->getQuoteHash($quote);
+        $response = $this->loadCachedResponse($quoteHash);
 
         if (!$response) {
-            $content = $this->quote->getNormalizedQuote();
+            $content = $this->quote->getNormalizedQuote($quote);
 
             try {
                 /** @var Response $response */
                 $response = $this->api->post($content);
-                $response->setHash($this->quote);
+                $response->setHash($quoteHash);
                 $this->storeResponse($response);
             } catch (\Exception $e) {
                 // Error message will be logged in API adapter.
                 // We fall back to the modules setting for maximum grand total when platform is offline.
                 $maxGrandTotal = $this->helper->getMaxGrandTotalWhenOffline();
-                $isAvailable = bccomp($maxGrandTotal, $this->quote->getGrandTotal(), 2) >= 0;
+                $isAvailable = bccomp($maxGrandTotal, $quote->getGrandTotal(), 2) >= 0;
 
                 if ($isAvailable) {
                     $msg = sprintf('Payment method "%s" is available although RMP is offline (as it was configured).', $paymentMethod);
@@ -142,8 +151,8 @@ class Connector
                 $this->loggingHelper->logToFile('info', $msg, 'check', [
                     'payment_method' => $paymentMethod,
                     'max_grand_total_when_offline' => $maxGrandTotal,
-                    'order_total' => $this->quote->getGrandTotal(),
-                ], $this->quote->getQuoteId());
+                    'order_total' => $quote->getGrandTotal(),
+                ], $quote->getId());
 
                 return $isAvailable;
             }
@@ -156,7 +165,7 @@ class Connector
         $this->loggingHelper->logToFile('info', $msg, 'check', [
             'payment_method' => $paymentMethod,
             'response' => $response->getCleanResponse(),
-        ], $this->quote->getQuoteId());
+        ], $quote->getId());
 
         return $isAvailable;
     }
@@ -174,12 +183,12 @@ class Connector
     {
         /** @var Data $helper */
         $helper = $this->helper;
-        if ($helper->isAdmin() || !$helper->isActive()) {
+        if ($helper->isAdmin() || !$helper->isActive() || !$observer->getQuote() instanceof QuoteModel) {
             return false;
         }
 
-        if (!$this->quote->isAddressProvided()) {
-            $this->loggingHelper->log('debug', 'No address data provided.', 'check', [], $this->quote->getQuoteId());
+        if (!$this->checkoutStatusHelper->isAddressProvided($observer->getQuote())) {
+            $this->loggingHelper->log('debug', 'No address data provided.', 'check', [], $observer->getQuote()->getId());
             return false;
         }
 
@@ -189,7 +198,7 @@ class Connector
             $paymentMethodsToCheck = $helper->getPaymentMethodsToCheck();
             if (!in_array($method->getCode(), $paymentMethodsToCheck, true)) {
                 $msg = sprintf('Payment method "%s" not selected to check.', $method->getCode());
-                $this->loggingHelper->log('debug', $msg, 'check', ['payment_method' => $method->getCode()], $this->quote->getQuoteId());
+                $this->loggingHelper->log('debug', $msg, 'check', ['payment_method' => $method->getCode()], $observer->getQuote()->getId());
                 return false;
             }
 

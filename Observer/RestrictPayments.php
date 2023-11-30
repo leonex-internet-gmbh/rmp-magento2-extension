@@ -12,6 +12,7 @@ use Magento\Framework\Event;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Payment\Model\MethodInterface;
+use Magento\Quote\Model\Quote;
 
 
 class RestrictPayments implements ObserverInterface
@@ -54,19 +55,18 @@ class RestrictPayments implements ObserverInterface
         /** @var Event $event */
         $event = $observer->getEvent();
 
-        if (!$event || !($event instanceof Event) || !($event->getMethodInstance() instanceof MethodInterface)) {
+        if (!($event instanceof Event) || !($event->getMethodInstance() instanceof MethodInterface) || !($event->getQuote() instanceof Quote)) {
             return;
         }
 
         $paymentMethod = $event->getMethodInstance()->getCode();
-        $quoteId = $this->checkoutSession->getQuoteId();
 
         // debug logging
         $msg = sprintf('Observer for payment restriction called for method "%s".', $paymentMethod);
         $this->loggingHelper->log('debug', $msg, 'observer', [
             'payment_method' => $paymentMethod,
             'time_of_checking' => $this->helper->getTimeOfChecking(),
-        ], $quoteId);
+        ], $event->getQuote()->getId());
 
         $checkingTime = $this->helper->getTimeOfChecking();
 
@@ -75,7 +75,7 @@ class RestrictPayments implements ObserverInterface
             // Debug logging
             $this->loggingHelper->log('debug', 'No payment method selected, yet.', 'observer', [
                 'time_of_checking' => $this->helper->getTimeOfChecking(),
-            ], $quoteId);
+            ], $event->getQuote()->getId());
 
             // no need to check since the payment method is not yet selected
             return;
@@ -83,7 +83,7 @@ class RestrictPayments implements ObserverInterface
         // pre check can also be applied in the post check, since the result is likely already cached
 
         if ($this->connector->isCheckNeeded($observer)) {
-            $event->getResult()->setIsAvailable($this->connector->checkPaymentPre($paymentMethod));
+            $event->getResult()->setIsAvailable($this->connector->checkPaymentPre($paymentMethod, $event->getQuote()));
         }
     }
 }

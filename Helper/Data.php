@@ -97,13 +97,11 @@ class Data extends AbstractHelper
 
     /**
      * Check if allow to check payments
-     *
-     * @return mixed
      */
-    public function isActive()
+    public function isActive(): bool
     {
         $return = $this->getConfigValue('is_active');
-        return $return;
+        return !!$return;
     }
 
     /**
