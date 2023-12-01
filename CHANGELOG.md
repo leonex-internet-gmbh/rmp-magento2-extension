@@ -4,7 +4,16 @@ CHANGELOG
 Next release
 ------------
 
+
+Release 2.3.0
+-------------
+
 * Docs: Added paragraph about the most important configuration fields
+* The first request to the platform should not happen before shipping
+  address was entered
+* Send the billing address not before the customer has really entered it.
+  Magento stores shipping address data in billing address, but this must
+  not be sent as billing address to the platform.
 
 
 Release 2.2.3
