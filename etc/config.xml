@@ -4,7 +4,7 @@
         <leonex_rmp>
             <settings>
                 <apiurl>https://rmp.leonex.de/api/creditrating/rate</apiurl>
-                <time_of_checking>pre</time_of_checking>
+                <time_of_checking>before_order_placement</time_of_checking>
                 <max_grand_total_when_offline>0</max_grand_total_when_offline>
             </settings>
             <address>

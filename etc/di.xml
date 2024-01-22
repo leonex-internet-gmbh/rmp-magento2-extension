@@ -8,6 +8,12 @@
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="rmp_save_dob_in_shipping_address" type="Leonex\RiskManagementPlatform\Plugin\Checkout\Model\ShippingInformationManagementPlugin" sortOrder="10"/>
     </type>
+    <type name="Magento\Checkout\Api\GuestPaymentInformationManagementInterface">
+        <plugin name="rmp.checkout.guest_place_order_detection" type="Leonex\RiskManagementPlatform\Plugin\Checkout\Model\GuestPaymentInformationManagementPlugin" sortOrder="1" />
+    </type>
+    <type name="Magento\Checkout\Api\PaymentInformationManagementInterface">
+        <plugin name="rmp.checkout.place_order_detection" type="Leonex\RiskManagementPlatform\Plugin\Checkout\Model\PaymentInformationManagementPlugin" sortOrder="1" />
+    </type>
     <type name="Magento\Customer\Api\AccountManagementInterface">
         <plugin name="rmp_safe_guest_email" type="Leonex\RiskManagementPlatform\Plugin\Customer\Api\SafeGuestEmailPlugin" sortOrder="1" />
     </type>

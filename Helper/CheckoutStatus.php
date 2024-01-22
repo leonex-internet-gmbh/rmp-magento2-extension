@@ -72,4 +72,20 @@ class CheckoutStatus extends AbstractHelper
         // has really been set by the user.
         return !$billingAddress->getUpdatedAt() || $billingAddress->getUpdatedAt() > $shippingAddress->getCreatedAt(); // comparison of the date string is working fine
     }
+
+    /**
+     * Save in the session that the order was tried to be placed.
+     */
+    public function setTriedToPlaceOrder(bool $tried): void
+    {
+        $this->_checkoutSession->setStepData('place_order', 'tried_to_place_order', $tried);
+    }
+
+    /**
+     * Check if the order was already tried to be saved during this checkout.
+     */
+    public function hasOrderBeenTriedToPlace(): bool
+    {
+        return $this->_checkoutSession->getStepData('place_order', 'tried_to_place_order');
+    }
 }

@@ -3,6 +3,7 @@
 "API Key","API-Key"
 "API URL","API-URL"
 "Attribute","Attribut", module, LEONEX_RiskManagementPlatform
+"Before order placement","Vor Kaufabschluss"
 "Before payment method selection","Vor Auswahl der Zahlungsmethode"
 "Don't change unless asked to do so.","Nur ändern, wenn Sie dazu aufgefordert werden."
 "Created","Erstellt"

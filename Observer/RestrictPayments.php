@@ -70,6 +70,11 @@ class RestrictPayments implements ObserverInterface
 
         $checkingTime = $this->helper->getTimeOfChecking();
 
+        // If the order has already been tried to place during this checkout, we can always do the check!
+        if ($checkingTime === CheckingTime::CHECKING_TIME_BEFORE_ORDER_PLACEMENT && !$this->checkoutStatusHelper->hasOrderBeenTriedToPlace()) {
+            return;
+        }
+
         // post check
         if ($checkingTime === CheckingTime::CHECKING_TIME_POST && !$this->checkoutStatusHelper->hasPaymentBeenSelected()) {
             // Debug logging

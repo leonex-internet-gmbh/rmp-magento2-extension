@@ -115,7 +115,7 @@ class Connector
     }
 
     /**
-     * Check if Paymentmethod is available
+     * Check if payment method is available
      */
     public function checkPaymentPre(string $paymentMethod, ?QuoteModel $quote = null): bool
     {
@@ -179,9 +179,8 @@ class Connector
      * @return bool
      * @throws LocalizedException
      */
-    public function isCheckNeeded(Observer $observer)
+    public function isCheckNeeded(Observer $observer): bool
     {
-        /** @var Data $helper */
         $helper = $this->helper;
         if ($helper->isAdmin() || !$helper->isActive() || !$observer->getQuote() instanceof QuoteModel) {
             return false;

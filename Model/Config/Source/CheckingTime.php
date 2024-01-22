@@ -2,10 +2,11 @@
 
 namespace Leonex\RiskManagementPlatform\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class CheckingTime implements ArrayInterface
+class CheckingTime implements OptionSourceInterface
 {
+    const CHECKING_TIME_BEFORE_ORDER_PLACEMENT = 'before_order_placement';
     const CHECKING_TIME_PRE = 'pre';
     const CHECKING_TIME_POST = 'post';
 
@@ -14,9 +15,10 @@ class CheckingTime implements ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         return [
+            ['value' => self::CHECKING_TIME_BEFORE_ORDER_PLACEMENT, 'label' => __('Before order placement')],
             ['value' => self::CHECKING_TIME_PRE, 'label' => __('Before payment method selection')],
             ['value' => self::CHECKING_TIME_POST, 'label' => __('After payment method selection')]
         ];
@@ -27,9 +29,10 @@ class CheckingTime implements ArrayInterface
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
+            self::CHECKING_TIME_BEFORE_ORDER_PLACEMENT => __('Before order placement'),
             self::CHECKING_TIME_PRE => __('Before payment method selection'),
             self::CHECKING_TIME_POST => __('After payment method selection')
         ];
