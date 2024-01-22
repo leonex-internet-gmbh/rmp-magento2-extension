@@ -9,7 +9,6 @@ Release 2.4.0
 
 * Added new configuration option to select the time of the check:
   "Before order placement". At this time all order information are available.
-* "Before order placement" is the new default for the time of the check.
 
 
 Release 2.3.0
