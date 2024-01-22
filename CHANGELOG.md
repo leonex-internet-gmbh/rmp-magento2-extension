@@ -4,6 +4,35 @@ CHANGELOG
 Next release
 ------------
 
+
+
+Release 2.4.1
+-------------
+
+### Deprecations
+
+* `Leonex\RiskManagementPlatform\Helper\CheckoutStatus::hasBillingAddressReallyBeenSet`
+  Calling the method without passing the quote is deprecated and will lead to an error in 3.0
+* `Leonex\RiskManagementPlatform\Model\Component\Connector::checkPaymentPre`
+  Calling the method without passing the quote is deprecated and will lead to an error in 3.0
+* `Leonex\RiskManagementPlatform\Model\Component\Quote`
+  * `isAddressProvided` is deprecated - use `\Leonex\RiskManagementPlatform\Helper\CheckoutStatus::isAddressProvided($quote)` instead.
+  * `getGrandTotal` is deprecated - use the getGrandTotal of the quote model directly.
+  * Calling the following methods without passing Magento's quote model is deprecated:
+    * `getNormalizedQuote`
+    * `getQuoteItems`
+    * `getCustomerData`
+    * `getCustomerEmail`
+    * `getOrderHistory`
+    * `getQuoteHash`
+    * `getNumberOfCanceledOrders`
+    * `getNumberOfCompletedOrders`
+    * `getNumberOfUnpaidOrders`
+    * `getNumberOf`
+  * The following methods are deprecated without replacement:
+    * `getQuoteId`
+    * `getQuote`
+
 Release 2.4.0
 -------------
 
