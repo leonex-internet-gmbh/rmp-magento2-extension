@@ -17,9 +17,8 @@ use Magento\Framework\Serialize\Serializer\Json;
  */
 class Response extends DataObject
 {
-
     /**
-     * @var  mixed $hash
+     * @var ?string $hash
      */
     protected $hash;
 
@@ -64,7 +63,7 @@ class Response extends DataObject
     /**
      * Return Hash from Quote
      *
-     * @return mixed
+     * @return ?string
      */
     public function getHash()
     {

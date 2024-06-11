@@ -234,19 +234,23 @@ class Connector
     /**
      * Get the response from the session and create a new Response object.
      *
-     * @param $hash
+     * @param string $hash
      *
      * @return null|Response
      */
     protected function loadCachedResponse($hash)
     {
-        $cache = $this->getCache();
-        $response = $cache->load($hash);
+        $responseContent = $this->getCache()->load($hash);
 
-        if ($response) {
-            $this->loggingHelper->log('info', 'Loaded API response from cache.', 'check', ['response' => $response], $this->quote->getQuoteId());
+        if (!$responseContent) {
+            return null;
         }
 
-        return $response ? $this->responseFactory->create(['jsonString' => $response]) : null;
+        $response = $this->responseFactory->create(['jsonString' => $responseContent]);
+
+        $quoteId = (int) $response->getData('quoteId');
+        $this->loggingHelper->log('info', 'Loaded API response from cache.', 'check', ['response' => $responseContent], $quoteId);
+
+        return $response;
     }
 }
