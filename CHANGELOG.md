@@ -5,6 +5,11 @@ Next release
 ------------
 
 
+Release 2.4.2
+-------------
+* Adjusted naming of deprecated customerSessionId param to quoteId in API request
+* Fixed retrieval of quote Id in cache usage log from deprecated method
+
 
 Release 2.4.1
 -------------
