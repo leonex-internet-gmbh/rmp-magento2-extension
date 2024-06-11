@@ -119,7 +119,7 @@ class Quote
         }
 
         return [
-            'customerSessionId' => $quote->getId(),
+            'quoteId' => $quote->getId(),
             'justifiableInterest' => Connector::JUSTIFIABLE_INTEREST_BUSINESS_INITIATION,
             'consentClause' => true,
             'billingAddress' => $this->normalizeBillingAddress($quote),

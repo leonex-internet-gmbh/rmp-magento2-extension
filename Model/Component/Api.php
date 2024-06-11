@@ -115,7 +115,7 @@ class Api
                 'status_code' => $responseCode,
                 'request' => $dataString,
                 'response' => $result,
-            ], $data['customerSessionId'] ?? null);
+            ], $data['quoteId'] ?? null);
 
             if (!$result || $error || $responseCode >= 500 || $responseCode === 404) {
                 throw new \Exception('Call to the RMP API failed.');
@@ -125,7 +125,7 @@ class Api
                 'status_code' => $responseCode,
                 'request' => $dataString,
                 'response' => $result,
-            ], $data['customerSessionId'] ?? null);
+            ], $data['quoteId'] ?? null);
         }
 
         return $this->prepareResponse($result);

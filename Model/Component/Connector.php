@@ -223,7 +223,7 @@ class Connector
     /**
      * Store the response from the api-call.
      *
-     * @param Response $response
+     * @return void
      */
     protected function storeResponse(Response $response)
     {
