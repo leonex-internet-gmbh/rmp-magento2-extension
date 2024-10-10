@@ -4,6 +4,10 @@ CHANGELOG
 Next release
 ------------
 
+### Deprecations
+
+* Usage of `\Leonex\RiskManagementPlatform\Component\Quote` is deprecated. Use `\Leonex\RiskManagementPlatform\Helper\QuoteSerializer` instead.
+
 
 Release 2.4.2
 -------------
