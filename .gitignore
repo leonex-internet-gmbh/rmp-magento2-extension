@@ -1,4 +1,5 @@
 .idea
+.phpunit.cache
 nbproject
 .DS_STORE
 /doc/*.docx
