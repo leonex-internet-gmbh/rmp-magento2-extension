@@ -4,6 +4,14 @@ CHANGELOG
 Next release
 ------------
 
+
+
+Release 2.4.3
+-------------
+
+* Normalize shipping address to null if only country is defined
+* Setup of phpunit and tests for QuoteSerializer
+
 ### Deprecations
 
 * Usage of `\Leonex\RiskManagementPlatform\Component\Quote` is deprecated. Use `\Leonex\RiskManagementPlatform\Helper\QuoteSerializer` instead.
