@@ -26,12 +26,6 @@ class Quote extends QuoteSerializer
      * Quote constructor.
      *
      * @deprecad since 2.3.0 - use \Leonex\RiskManagementPlatform\Helper\QuoteSerializer instead.
-     *
-     * @param Session                    $checkoutSession
-     * @param CollectionFactoryInterface $orderFactory
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function __construct(
         Session $checkoutSession,

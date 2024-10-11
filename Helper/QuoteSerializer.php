@@ -43,12 +43,6 @@ class QuoteSerializer
      */
     protected $checkoutStatus;
 
-    /**
-     * Quote constructor.
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
     public function __construct(
         Session $checkoutSession,
         AddressHelper $addressHelper,
@@ -124,6 +118,19 @@ class QuoteSerializer
         $shippingAddress = $quote->getShippingAddress();
         $dob = $quote->getCustomerDob();
 
+        // If non of the relevant data is set, we can return NULL.
+        // This is required, because sometimes the country is set, although all other fields are empty. In this case
+        // the address is regarded as invalid by the platform API.
+        if (!($shippingAddress->getLastname()
+            || $shippingAddress->getFirstname()
+            || $shippingAddress->getCompany()
+            || '' !== trim($shippingAddress->getStreetFull())
+            || $shippingAddress->getPostcode()
+            || $shippingAddress->getCity()
+        )) {
+            return null;
+        }
+
         return [
             'gender' => $this->getGender($shippingAddress),
             'lastName' => $shippingAddress->getLastname(),
@@ -178,7 +185,7 @@ class QuoteSerializer
         }
 
         return [
-            'number' => $quote->getCustomer()->getId(),
+            'number' => $quote->getCustomerId(),
             'email' => $this->getCustomerEmail($quote),
         ];
     }
