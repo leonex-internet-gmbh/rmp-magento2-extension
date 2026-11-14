@@ -21,7 +21,7 @@ class PaymentInformationManagementPlugin
         PaymentInformationManagementInterface $paymentInformationManagement,
         $cartId,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
+        ?AddressInterface $billingAddress = null
     ): void {
         $this->checkoutStatusHelper->setTriedToPlaceOrder(true);
     }

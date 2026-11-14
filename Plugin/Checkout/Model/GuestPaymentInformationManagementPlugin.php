@@ -22,7 +22,7 @@ class GuestPaymentInformationManagementPlugin
         $cartId,
         $email,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
+        ?AddressInterface $billingAddress = null
     ): void {
         $this->checkoutStatusHelper->setTriedToPlaceOrder(true);
     }
