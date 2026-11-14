@@ -74,7 +74,7 @@ class Logging extends AbstractHelper
         return $value > 0 ? (int) $value : 0;
     }
 
-    public function log(string $level, string $message, string $tag = null, array $payload = [], int $quoteId = null, int $orderId = null): void
+    public function log(string $level, string $message, ?string $tag = null, array $payload = [], ?int $quoteId = null, ?int $orderId = null): void
     {
         if (!$this->isDebugLoggingEnabled()) {
             return;
@@ -83,7 +83,7 @@ class Logging extends AbstractHelper
         $this->forceLog($level, $message, $tag, $payload, $quoteId, $orderId);
     }
 
-    public function forceLog(string $level, string $message, string $tag = null, array $payload = [], int $quoteId = null, int $orderId = null): void
+    public function forceLog(string $level, string $message, ?string $tag = null, array $payload = [], ?int $quoteId = null, ?int $orderId = null): void
     {
         $log = $this->logFactory->create();
         $log
@@ -97,7 +97,7 @@ class Logging extends AbstractHelper
         $this->logResource->save($log);
     }
 
-    public function logToFile(string $level, string $message, string $tag = null, array $payload = [], int $quoteId = null, int $orderId = null): void
+    public function logToFile(string $level, string $message, ?string $tag = null, array $payload = [], ?int $quoteId = null, ?int $orderId = null): void
     {
         if (!$this->isDebugLoggingEnabled()) {
             return;
@@ -107,7 +107,7 @@ class Logging extends AbstractHelper
         $this->logger->log($level, $message, $payload);
     }
 
-    public function forceLogToFile(string $level, string $message, string $tag = null, array $payload = [], int $quoteId = null, int $orderId = null): void
+    public function forceLogToFile(string $level, string $message, ?string $tag = null, array $payload = [], ?int $quoteId = null, ?int $orderId = null): void
     {
         $this->forceLog($level, $message, $tag, $payload, $quoteId, $orderId);
         $this->logger->log($level, $message, $payload);
