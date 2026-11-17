@@ -6,7 +6,6 @@ use Leonex\RiskManagementPlatform\Model\LogFactory;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Sales\Model\OrderRepository;
 
 /**
  * Leonex\RiskManagementPlatform\Controller\Adminhtml\Log\View
@@ -18,7 +17,7 @@ class View extends Action
     protected $pageFactory = false;
     protected $logFactory;
 
-    public function __construct(Context $context, PageFactory $pageFactory, LogFactory $logFactory, OrderRepository $of)
+    public function __construct(Context $context, PageFactory $pageFactory, LogFactory $logFactory)
     {
         parent::__construct($context);
         $this->pageFactory = $pageFactory;

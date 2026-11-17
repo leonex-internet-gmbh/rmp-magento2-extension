@@ -72,6 +72,8 @@ if (interface_exists('Magento\Framework\Setup\Patch\DataPatchInterface', false))
             }
 
             $this->moduleDataSetup->getConnection()->endSetup();
+
+            return $this;
         }
 
         /**
@@ -96,5 +98,8 @@ if (interface_exists('Magento\Framework\Setup\Patch\DataPatchInterface', false))
         }
     }
 } else {
-    class PaymentMethodSelection {}
+    class_alias(
+        \Leonex\RiskManagementPlatform\Setup\Patch\Legacy\PaymentMethodSelection::class,
+        __NAMESPACE__ . '\\PaymentMethodSelection'
+    );
 }

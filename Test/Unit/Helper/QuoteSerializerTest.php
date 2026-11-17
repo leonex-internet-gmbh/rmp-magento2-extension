@@ -265,7 +265,9 @@ class QuoteSerializerTest extends TestCase
 
         // Prevent the collection from trying to load data from database
         $prop = new \ReflectionProperty(get_class($quoteItemCollection), '_isCollectionLoaded');
-        $prop->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $prop->setAccessible(true);
+        }
         $prop->setValue($quoteItemCollection, true);
 
         $customer = $this->createMock(\Magento\Customer\Model\Customer::class);

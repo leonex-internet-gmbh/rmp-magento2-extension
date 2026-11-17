@@ -2,7 +2,7 @@
 
 namespace Leonex\RiskManagementPlatform\Model;
 
-use Monolog\Logger as BaseLogger;
+use Magento\Framework\Logger\Monolog as BaseLogger;
 use Magento\Framework\Logger\Handler\System as SystemLoggerHandler;
 
 /**

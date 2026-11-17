@@ -58,5 +58,7 @@ class Collection extends SearchResult
         } else {
             parent::addFieldToFilter($field, $condition);
         }
+
+        return $this;
     }
 }

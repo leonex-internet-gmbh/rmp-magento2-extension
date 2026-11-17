@@ -12,8 +12,8 @@ use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 class Collection extends AbstractCollection
 {
     protected $_idFieldName = 'log_id';
-	protected $_eventPrefix = 'rmp_log_collection';
-	protected $_eventObject = 'rmp_log_collection';
+    protected $_eventPrefix = 'rmp_log_collection';
+    protected $_eventObject = 'rmp_log_collection';
 
     protected $loadQuotesAfterLoad = false;
     protected $loadOrdersAfterLoad = false;
@@ -90,11 +90,11 @@ class Collection extends AbstractCollection
             }
 
             if ($logsByOrderId) {
-                /** @var \Magento\Sales\Model\ResourceModel\Order\Collection $quoteCol */
+                /** @var \Magento\Sales\Model\ResourceModel\Order\Collection $orderCol */
                 $orderCol = $this->_orderCollectionFactory->create();
                 $orderCol->addFieldToFilter('entity_id', ['in' => array_keys($logsByOrderId)]);
                 foreach ($orderCol->getItems() as $order) {
-                    $logsByOrderId[$quote->getId()]->setData('order', $order);
+                    $logsByOrderId[$order->getId()]->setData('order', $order);
                 }
             }
         }
