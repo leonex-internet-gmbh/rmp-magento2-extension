@@ -61,46 +61,46 @@ class QuoteSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->objectFactory = $this->createMock(\Magento\Framework\ObjectManager\FactoryInterface::class);
+        $this->objectFactory = $this->createStub(\Magento\Framework\ObjectManager\FactoryInterface::class);
         $this->objectFactory->method('create')->willReturnCallback(function ($type, $arguments) {
             switch ($type) {
                 case \Magento\Quote\Model\ResourceModel\Quote\Address\Collection::class:
                     return $this->instantiateEmptyAddressCollection();
             }
         });
-        $objectConfig = $this->createMock(\Magento\Framework\ObjectManager\ConfigInterface::class);
+        $objectConfig = $this->createStub(\Magento\Framework\ObjectManager\ConfigInterface::class);
         $objectConfig->method('getPreference')->willReturnArgument(0);
         $this->objectManager = new ObjectManager($this->objectFactory, $objectConfig);
 
-        $this->checkoutSession = $this->createMock(CheckoutSession::class);
-        $this->addressHelper = $this->createMock(AddressHelper::class);
+        $this->checkoutSession = $this->createStub(CheckoutSession::class);
+        $this->addressHelper = $this->createStub(AddressHelper::class);
         $this->addressHelper->method('mapPrefixToGender')->willReturnCallback(function ($prefix) {
             return QuoteSerializer::GENDER_MAPPING[$prefix] ?? null;
         });
-        $this->checkoutStatusHelper = $this->createMock(CheckoutStatusHelper::class);
-        $orderCollection = $this->createMock(\Magento\Sales\Model\ResourceModel\Order\Collection::class);
+        $this->checkoutStatusHelper = $this->createStub(CheckoutStatusHelper::class);
+        $orderCollection = $this->createStub(\Magento\Sales\Model\ResourceModel\Order\Collection::class);
         $orderCollection->method('count')->willReturn(0);
-        $this->collectionFactory = $this->createMock(CollectionFactoryInterface::class);
+        $this->collectionFactory = $this->createStub(CollectionFactoryInterface::class);
         $this->collectionFactory->method('create')->willReturn($orderCollection);
-        $this->customerRepository = $this->createMock(CustomerRepositoryInterface::class);
+        $this->customerRepository = $this->createStub(CustomerRepositoryInterface::class);
 
-        $store = $this->createMock(\Magento\Store\Api\Data\StoreInterface::class);
+        $store = $this->createStub(\Magento\Store\Api\Data\StoreInterface::class);
 
-        $this->storeManager = $this->createMock(\Magento\Store\Model\StoreManagerInterface::class);
+        $this->storeManager = $this->createStub(\Magento\Store\Model\StoreManagerInterface::class);
         $this->storeManager->method('getStore')->willReturn($store);
 
-        $this->eventDispatcher = $this->createMock(\Magento\Framework\Event\ManagerInterface::class);
-        $this->context = $this->createMock(\Magento\Framework\Model\Context::class);
+        $this->eventDispatcher = $this->createStub(\Magento\Framework\Event\ManagerInterface::class);
+        $this->context = $this->createStub(\Magento\Framework\Model\Context::class);
         $this->context->method('getEventDispatcher')->willReturn($this->eventDispatcher);
 
-        $select = $this->createMock(\Magento\Framework\DB\Select::class);
-        $this->connection = $this->createMock(\Magento\Framework\DB\Adapter\AdapterInterface::class);
+        $select = $this->createStub(\Magento\Framework\DB\Select::class);
+        $this->connection = $this->createStub(\Magento\Framework\DB\Adapter\AdapterInterface::class);
         $this->connection->method('select')->willReturn($select);
 
-        $this->addressResource = $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Address::class);
+        $this->addressResource = $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Address::class);
         $this->addressResource->method('getConnection')->willReturn($this->connection);
 
-        $this->itemResource = $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Item::class);
+        $this->itemResource = $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Item::class);
         $this->itemResource->method('getConnection')->willReturn($this->connection);
 
         $this->quoteSerializer = new QuoteSerializer($this->checkoutSession, $this->addressHelper, $this->checkoutStatusHelper, $this->collectionFactory);
@@ -255,7 +255,7 @@ class QuoteSerializerTest extends TestCase
 
     private function instantiateEmptyQuoteModel(array $data = []): Quote
     {
-        $quoteAddressFactory = $this->createMock(\Magento\Quote\Model\Quote\AddressFactory::class);
+        $quoteAddressFactory = $this->createStub(\Magento\Quote\Model\Quote\AddressFactory::class);
         $quoteAddressFactory->method('create')->willReturnCallback(function () {
             return $this->instantiateEmptyAddressModel();
         });
@@ -270,57 +270,57 @@ class QuoteSerializerTest extends TestCase
         }
         $prop->setValue($quoteItemCollection, true);
 
-        $customer = $this->createMock(\Magento\Customer\Model\Customer::class);
+        $customer = $this->createStub(\Magento\Customer\Model\Customer::class);
         $customer->method('getId')->willReturn(null);
-        $customerRepository = $this->createMock(\Magento\Customer\Api\CustomerRepositoryInterface::class);
+        $customerRepository = $this->createStub(\Magento\Customer\Api\CustomerRepositoryInterface::class);
         $customerRepository->method('getById')->willReturn($customer);
 
-        $resource = $this->createMock(\Magento\Quote\Model\ResourceModel\Quote::class);
+        $resource = $this->createStub(\Magento\Quote\Model\ResourceModel\Quote::class);
         $resource->method('getIdFieldName')->willReturn('entity_id');
 
         return new Quote(
             /*context:*/ $this->context,
-            /*registry:*/ $this->createMock(\Magento\Framework\Registry::class),
-            /*extensionFactory:*/ $this->createMock(\Magento\Framework\Api\ExtensionAttributesFactory::class),
-            /*customAttributeFactory:*/ $this->createMock(\Magento\Framework\Api\AttributeValueFactory::class),
-            /*quoteValidator:*/ $this->createMock(\Magento\Quote\Model\QuoteValidator::class),
-            /*catalogProduct:*/ $this->createMock(\Magento\Catalog\Helper\Product::class),
-            /*scopeConfig:*/ $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class),
+            /*registry:*/ $this->createStub(\Magento\Framework\Registry::class),
+            /*extensionFactory:*/ $this->createStub(\Magento\Framework\Api\ExtensionAttributesFactory::class),
+            /*customAttributeFactory:*/ $this->createStub(\Magento\Framework\Api\AttributeValueFactory::class),
+            /*quoteValidator:*/ $this->createStub(\Magento\Quote\Model\QuoteValidator::class),
+            /*catalogProduct:*/ $this->createStub(\Magento\Catalog\Helper\Product::class),
+            /*scopeConfig:*/ $this->createStub(\Magento\Framework\App\Config\ScopeConfigInterface::class),
             /*storeManager:*/ $this->storeManager,
-            /*config:*/ $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class),
+            /*config:*/ $this->createStub(\Magento\Framework\App\Config\ScopeConfigInterface::class),
             /*quoteAddressFactory:*/ $quoteAddressFactory,
-            /*customerFactory:*/ $this->createMock(\Magento\Customer\Model\CustomerFactory::class),
-            /*groupRepository:*/ $this->createMock(\Magento\Customer\Api\GroupRepositoryInterface::class),
-            /*quoteItemCollectionFactory:*/ $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Item\CollectionFactory::class),
-            /*quoteItemFactory:*/ $this->createMock(\Magento\Quote\Model\Quote\ItemFactory::class),
-            /*messageFactory:*/ $this->createMock(\Magento\Framework\Message\Factory::class),
-            /*statusListFactory:*/ $this->createMock(\Magento\Sales\Model\Status\ListFactory::class),
-            /*productRepository:*/ $this->createMock(\Magento\Catalog\Api\ProductRepositoryInterface::class),
-            /*quotePaymentFactory:*/ $this->createMock(\Magento\Quote\Model\Quote\PaymentFactory::class),
-            /*quotePaymentCollectionFactory:*/ $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Payment\CollectionFactory::class),
-            /*objectCopyService:*/ $this->createMock(\Magento\Framework\DataObject\Copy::class),
-            /*stockRegistry:*/ $this->createMock(\Magento\CatalogInventory\Api\StockRegistryInterface::class),
-            /*itemProcessor:*/ $this->createMock(\Magento\Quote\Model\Quote\Item\Processor::class),
-            /*objectFactory:*/ $this->createMock(\Magento\Framework\DataObject\Factory::class),
-            /*addressRepository:*/ $this->createMock(\Magento\Customer\Api\AddressRepositoryInterface::class),
-            /*criteriaBuilder:*/ $this->createMock(\Magento\Framework\Api\SearchCriteriaBuilder::class),
-            /*filterBuilder:*/ $this->createMock(\Magento\Framework\Api\FilterBuilder::class),
-            /*addressDataFactory:*/ $this->createMock(\Magento\Customer\Api\Data\AddressInterfaceFactory::class),
-            /*customerDataFactory:*/ $this->createMock(\Magento\Customer\Api\Data\CustomerInterfaceFactory::class),
+            /*customerFactory:*/ $this->createStub(\Magento\Customer\Model\CustomerFactory::class),
+            /*groupRepository:*/ $this->createStub(\Magento\Customer\Api\GroupRepositoryInterface::class),
+            /*quoteItemCollectionFactory:*/ $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Item\CollectionFactory::class),
+            /*quoteItemFactory:*/ $this->createStub(\Magento\Quote\Model\Quote\ItemFactory::class),
+            /*messageFactory:*/ $this->createStub(\Magento\Framework\Message\Factory::class),
+            /*statusListFactory:*/ $this->createStub(\Magento\Sales\Model\Status\ListFactory::class),
+            /*productRepository:*/ $this->createStub(\Magento\Catalog\Api\ProductRepositoryInterface::class),
+            /*quotePaymentFactory:*/ $this->createStub(\Magento\Quote\Model\Quote\PaymentFactory::class),
+            /*quotePaymentCollectionFactory:*/ $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Payment\CollectionFactory::class),
+            /*objectCopyService:*/ $this->createStub(\Magento\Framework\DataObject\Copy::class),
+            /*stockRegistry:*/ $this->createStub(\Magento\CatalogInventory\Api\StockRegistryInterface::class),
+            /*itemProcessor:*/ $this->createStub(\Magento\Quote\Model\Quote\Item\Processor::class),
+            /*objectFactory:*/ $this->createStub(\Magento\Framework\DataObject\Factory::class),
+            /*addressRepository:*/ $this->createStub(\Magento\Customer\Api\AddressRepositoryInterface::class),
+            /*criteriaBuilder:*/ $this->createStub(\Magento\Framework\Api\SearchCriteriaBuilder::class),
+            /*filterBuilder:*/ $this->createStub(\Magento\Framework\Api\FilterBuilder::class),
+            /*addressDataFactory:*/ $this->createStub(\Magento\Customer\Api\Data\AddressInterfaceFactory::class),
+            /*customerDataFactory:*/ $this->createStub(\Magento\Customer\Api\Data\CustomerInterfaceFactory::class),
             /*customerRepository:*/ $customerRepository,
-            /*dataObjectHelper:*/ $this->createMock(\Magento\Framework\Api\DataObjectHelper::class),
-            /*extensibleDataObjectConverter:*/ $this->createMock(\Magento\Framework\Api\ExtensibleDataObjectConverter::class),
-            /*currencyFactory:*/ $this->createMock(\Magento\Quote\Model\Cart\CurrencyFactory::class),
-            /*extensionAttributesJoinProcessor:*/ $this->createMock(\Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface::class),
-            /*totalsCollector:*/ $this->createMock(\Magento\Quote\Model\Quote\TotalsCollector::class),
-            /*totalsReader:*/ $this->createMock(\Magento\Quote\Model\Quote\TotalsReader::class),
-            /*shippingFactory:*/ $this->createMock(\Magento\Quote\Model\ShippingFactory::class),
-            /*shippingAssignmentFactory:*/ $this->createMock(\Magento\Quote\Model\ShippingAssignmentFactory::class),
+            /*dataObjectHelper:*/ $this->createStub(\Magento\Framework\Api\DataObjectHelper::class),
+            /*extensibleDataObjectConverter:*/ $this->createStub(\Magento\Framework\Api\ExtensibleDataObjectConverter::class),
+            /*currencyFactory:*/ $this->createStub(\Magento\Quote\Model\Cart\CurrencyFactory::class),
+            /*extensionAttributesJoinProcessor:*/ $this->createStub(\Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface::class),
+            /*totalsCollector:*/ $this->createStub(\Magento\Quote\Model\Quote\TotalsCollector::class),
+            /*totalsReader:*/ $this->createStub(\Magento\Quote\Model\Quote\TotalsReader::class),
+            /*shippingFactory:*/ $this->createStub(\Magento\Quote\Model\ShippingFactory::class),
+            /*shippingAssignmentFactory:*/ $this->createStub(\Magento\Quote\Model\ShippingAssignmentFactory::class),
             /*resource:*/ $resource,
-            /*resourceCollection:*/ $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Collection::class),
+            /*resourceCollection:*/ $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Collection::class),
             /*data:*/ $data,
-            /*orderIncrementIdChecker:*/ $this->createMock(\Magento\Sales\Model\OrderIncrementIdChecker::class),
-            /*allowedCountriesReader:*/ $this->createMock(\Magento\Directory\Model\AllowedCountries::class)
+            /*orderIncrementIdChecker:*/ $this->createStub(\Magento\Sales\Model\OrderIncrementIdChecker::class),
+            /*allowedCountriesReader:*/ $this->createStub(\Magento\Directory\Model\AllowedCountries::class)
         );
     }
 
@@ -328,80 +328,80 @@ class QuoteSerializerTest extends TestCase
     {
         return new Address(
             /*context:*/ $this->context,
-            /*registry:*/ $this->createMock(\Magento\Framework\Registry::class),
-            /*extensionFactory:*/ $this->createMock(\Magento\Framework\Api\ExtensionAttributesFactory::class),
-            /*customAttributeFactory:*/ $this->createMock(\Magento\Framework\Api\AttributeValueFactory::class),
-            /*directoryData:*/ $this->createMock(\Magento\Directory\Helper\Data::class),
-            /*eavConfig:*/ $this->createMock(\Magento\Eav\Model\Config::class),
-            /*addressConfig:*/ $this->createMock(\Magento\Customer\Model\Address\Config::class),
-            /*regionFactory:*/ $this->createMock(\Magento\Directory\Model\RegionFactory::class),
-            /*countryFactory:*/ $this->createMock(\Magento\Directory\Model\CountryFactory::class),
-            /*metadataService:*/ $this->createMock(\Magento\Customer\Api\AddressMetadataInterface::class),
-            /*addressDataFactory:*/ $this->createMock(\Magento\Customer\Api\Data\AddressInterfaceFactory::class),
-            /*regionDataFactory:*/ $this->createMock(\Magento\Customer\Api\Data\RegionInterfaceFactory::class),
-            /*dataObjectHelper:*/ $this->createMock(\Magento\Framework\Api\DataObjectHelper::class),
-            /*scopeConfig:*/ $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class),
-            /*addressItemFactory:*/ $this->createMock(\Magento\Quote\Model\Quote\Address\ItemFactory::class),
-            /*itemCollectionFactory:*/ $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Address\Item\CollectionFactory::class),
-            /*addressRateFactory:*/ $this->createMock(\Magento\Quote\Model\Quote\Address\RateFactory::class),
-            /*rateCollector:*/ $this->createMock(\Magento\Quote\Model\Quote\Address\RateCollectorInterfaceFactory::class),
-            /*rateCollectionFactory:*/ $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Address\Rate\CollectionFactory::class),
-            /*rateRequestFactory:*/ $this->createMock(\Magento\Quote\Model\Quote\Address\RateRequestFactory::class),
-            /*totalCollectorFactory:*/ $this->createMock(\Magento\Quote\Model\Quote\Address\Total\CollectorFactory::class),
-            /*addressTotalFactory:*/ $this->createMock(\Magento\Quote\Model\Quote\Address\TotalFactory::class),
-            /*objectCopyService:*/ $this->createMock(\Magento\Framework\DataObject\Copy::class),
-            /*carrierFactory:*/ $this->createMock(\Magento\Shipping\Model\CarrierFactoryInterface::class),
-            /*validator:*/ $this->createMock(\Magento\Quote\Model\Quote\Address\Validator::class),
-            /*addressMapper:*/ $this->createMock(\Magento\Customer\Model\Address\Mapper::class),
-            /*attributeList:*/ $this->createMock(\Magento\Quote\Model\Quote\Address\CustomAttributeListInterface::class),
-            /*totalsCollector:*/ $this->createMock(\Magento\Quote\Model\Quote\TotalsCollector::class),
-            /*totalsReader:*/ $this->createMock(\Magento\Quote\Model\Quote\TotalsReader::class),
-            /*resource:*/ $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Address::class),
+            /*registry:*/ $this->createStub(\Magento\Framework\Registry::class),
+            /*extensionFactory:*/ $this->createStub(\Magento\Framework\Api\ExtensionAttributesFactory::class),
+            /*customAttributeFactory:*/ $this->createStub(\Magento\Framework\Api\AttributeValueFactory::class),
+            /*directoryData:*/ $this->createStub(\Magento\Directory\Helper\Data::class),
+            /*eavConfig:*/ $this->createStub(\Magento\Eav\Model\Config::class),
+            /*addressConfig:*/ $this->createStub(\Magento\Customer\Model\Address\Config::class),
+            /*regionFactory:*/ $this->createStub(\Magento\Directory\Model\RegionFactory::class),
+            /*countryFactory:*/ $this->createStub(\Magento\Directory\Model\CountryFactory::class),
+            /*metadataService:*/ $this->createStub(\Magento\Customer\Api\AddressMetadataInterface::class),
+            /*addressDataFactory:*/ $this->createStub(\Magento\Customer\Api\Data\AddressInterfaceFactory::class),
+            /*regionDataFactory:*/ $this->createStub(\Magento\Customer\Api\Data\RegionInterfaceFactory::class),
+            /*dataObjectHelper:*/ $this->createStub(\Magento\Framework\Api\DataObjectHelper::class),
+            /*scopeConfig:*/ $this->createStub(\Magento\Framework\App\Config\ScopeConfigInterface::class),
+            /*addressItemFactory:*/ $this->createStub(\Magento\Quote\Model\Quote\Address\ItemFactory::class),
+            /*itemCollectionFactory:*/ $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Address\Item\CollectionFactory::class),
+            /*addressRateFactory:*/ $this->createStub(\Magento\Quote\Model\Quote\Address\RateFactory::class),
+            /*rateCollector:*/ $this->createStub(\Magento\Quote\Model\Quote\Address\RateCollectorInterfaceFactory::class),
+            /*rateCollectionFactory:*/ $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Address\Rate\CollectionFactory::class),
+            /*rateRequestFactory:*/ $this->createStub(\Magento\Quote\Model\Quote\Address\RateRequestFactory::class),
+            /*totalCollectorFactory:*/ $this->createStub(\Magento\Quote\Model\Quote\Address\Total\CollectorFactory::class),
+            /*addressTotalFactory:*/ $this->createStub(\Magento\Quote\Model\Quote\Address\TotalFactory::class),
+            /*objectCopyService:*/ $this->createStub(\Magento\Framework\DataObject\Copy::class),
+            /*carrierFactory:*/ $this->createStub(\Magento\Shipping\Model\CarrierFactoryInterface::class),
+            /*validator:*/ $this->createStub(\Magento\Quote\Model\Quote\Address\Validator::class),
+            /*addressMapper:*/ $this->createStub(\Magento\Customer\Model\Address\Mapper::class),
+            /*attributeList:*/ $this->createStub(\Magento\Quote\Model\Quote\Address\CustomAttributeListInterface::class),
+            /*totalsCollector:*/ $this->createStub(\Magento\Quote\Model\Quote\TotalsCollector::class),
+            /*totalsReader:*/ $this->createStub(\Magento\Quote\Model\Quote\TotalsReader::class),
+            /*resource:*/ $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Address::class),
             /*resourceCollection:*/ $this->instantiateEmptyAddressCollection(),
             /*data:*/ $data,
-            /*serializer:*/ $this->createMock(\Magento\Framework\Serialize\Serializer\Json::class),
+            /*serializer:*/ $this->createStub(\Magento\Framework\Serialize\Serializer\Json::class),
             /*storeManager:*/ $this->storeManager,
-            /*compositeValidator:*/ $this->createMock(\Magento\Customer\Model\Address\CompositeValidator::class),
-            /*countryModelsCache:*/ $this->createMock(\Magento\Customer\Model\Address\AbstractAddress\CountryModelsCache::class),
-            /*regionModelsCache:*/ $this->createMock(\Magento\Customer\Model\Address\AbstractAddress\RegionModelsCache::class)
+            /*compositeValidator:*/ $this->createStub(\Magento\Customer\Model\Address\CompositeValidator::class),
+            /*countryModelsCache:*/ $this->createStub(\Magento\Customer\Model\Address\AbstractAddress\CountryModelsCache::class),
+            /*regionModelsCache:*/ $this->createStub(\Magento\Customer\Model\Address\AbstractAddress\RegionModelsCache::class)
         );
     }
 
     private function instantiateEmptyQuoteItemModel(array $data = []): Item
     {
-        $product = $this->createMock(\Magento\Catalog\Model\Product::class);
+        $product = $this->createStub(\Magento\Catalog\Model\Product::class);
         $product->method('isDeleted')->willReturn(false);
         $product->method('getStatus')->willReturn(ProductStatus::STATUS_ENABLED);
         $data['product'] = $product;
 
         return new Item(
             /*context:*/ $this->context,
-            /*registry:*/ $this->createMock(\Magento\Framework\Registry::class),
-            /*extensionFactory:*/ $this->createMock(\Magento\Framework\Api\ExtensionAttributesFactory::class),
-            /*customAttributeFactory:*/ $this->createMock(\Magento\Framework\Api\AttributeValueFactory::class),
-            /*productRepository:*/ $this->createMock(\Magento\Catalog\Api\ProductRepositoryInterface::class),
-            /*priceCurrency:*/ $this->createMock(\Magento\Framework\Pricing\PriceCurrencyInterface::class),
-            /*statusListFactory:*/ $this->createMock(\Magento\Sales\Model\Status\ListFactory::class),
-            /*localeFormat:*/ $this->createMock(\Magento\Framework\Locale\FormatInterface::class),
-            /*itemOptionFactory:*/ $this->createMock(\Magento\Quote\Model\Quote\Item\OptionFactory::class),
-            /*quoteItemCompare:*/ $this->createMock(\Magento\Quote\Model\Quote\Item\Compare::class),
-            /*stockRegistry:*/ $this->createMock(\Magento\CatalogInventory\Api\StockRegistryInterface::class),
-            /*resource:*/ $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Item::class),
-            /*resourceCollection:*/ $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Item\Collection::class),
+            /*registry:*/ $this->createStub(\Magento\Framework\Registry::class),
+            /*extensionFactory:*/ $this->createStub(\Magento\Framework\Api\ExtensionAttributesFactory::class),
+            /*customAttributeFactory:*/ $this->createStub(\Magento\Framework\Api\AttributeValueFactory::class),
+            /*productRepository:*/ $this->createStub(\Magento\Catalog\Api\ProductRepositoryInterface::class),
+            /*priceCurrency:*/ $this->createStub(\Magento\Framework\Pricing\PriceCurrencyInterface::class),
+            /*statusListFactory:*/ $this->createStub(\Magento\Sales\Model\Status\ListFactory::class),
+            /*localeFormat:*/ $this->createStub(\Magento\Framework\Locale\FormatInterface::class),
+            /*itemOptionFactory:*/ $this->createStub(\Magento\Quote\Model\Quote\Item\OptionFactory::class),
+            /*quoteItemCompare:*/ $this->createStub(\Magento\Quote\Model\Quote\Item\Compare::class),
+            /*stockRegistry:*/ $this->createStub(\Magento\CatalogInventory\Api\StockRegistryInterface::class),
+            /*resource:*/ $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Item::class),
+            /*resourceCollection:*/ $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Item\Collection::class),
             $data,
-            /*serializer:*/ $this->createMock(\Magento\Framework\Serialize\Serializer\Json::class),
-            /*itemOptionComparator:*/ $this->createMock(\Magento\Quote\Model\Quote\Item\Option\ComparatorInterface::class)
+            /*serializer:*/ $this->createStub(\Magento\Framework\Serialize\Serializer\Json::class),
+            /*itemOptionComparator:*/ $this->createStub(\Magento\Quote\Model\Quote\Item\Option\ComparatorInterface::class)
         );
     }
 
     private function instantiateEmptyAddressCollection(): \Magento\Quote\Model\ResourceModel\Quote\Address\Collection
     {
         return new \Magento\Quote\Model\ResourceModel\Quote\Address\Collection(
-            /*entityFactory:*/ $this->createMock(\Magento\Framework\Data\Collection\EntityFactoryInterface::class),
-            /*logger:*/ $this->createMock(\Psr\Log\LoggerInterface::class),
-            /*fetchStrategy:*/ $this->createMock(\Magento\Framework\Data\Collection\Db\FetchStrategyInterface::class),
-            /*eventManager:*/ $this->createMock(\Magento\Framework\Event\ManagerInterface::class),
-            /*entitySnapshot:*/ $this->createMock(\Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot::class),
+            /*entityFactory:*/ $this->createStub(\Magento\Framework\Data\Collection\EntityFactoryInterface::class),
+            /*logger:*/ $this->createStub(\Psr\Log\LoggerInterface::class),
+            /*fetchStrategy:*/ $this->createStub(\Magento\Framework\Data\Collection\Db\FetchStrategyInterface::class),
+            /*eventManager:*/ $this->createStub(\Magento\Framework\Event\ManagerInterface::class),
+            /*entitySnapshot:*/ $this->createStub(\Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot::class),
             /*connection:*/ $this->connection,
             /*resource:*/ $this->addressResource
         );
@@ -410,18 +410,18 @@ class QuoteSerializerTest extends TestCase
     private function instantiateEmptyItemCollection(): \Magento\Quote\Model\ResourceModel\Quote\Item\Collection
     {
         return new \Magento\Quote\Model\ResourceModel\Quote\Item\Collection(
-            /*entityFactory:*/ $this->createMock(\Magento\Framework\Data\Collection\EntityFactory::class),
-            /*logger:*/ $this->createMock(\Psr\Log\LoggerInterface::class),
-            /*fetchStrategy:*/ $this->createMock(\Magento\Framework\Data\Collection\Db\FetchStrategyInterface::class),
-            /*eventManager:*/ $this->createMock(\Magento\Framework\Event\ManagerInterface::class),
-            /*entitySnapshot:*/ $this->createMock(\Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot::class),
-            /*itemOptionCollectionFactory:*/ $this->createMock(\Magento\Quote\Model\ResourceModel\Quote\Item\Option\CollectionFactory::class),
-            /*productCollectionFactory:*/ $this->createMock(\Magento\Catalog\Model\ResourceModel\Product\CollectionFactory::class),
-            /*quoteConfig:*/ $this->createMock(\Magento\Quote\Model\Quote\Config::class),
+            /*entityFactory:*/ $this->createStub(\Magento\Framework\Data\Collection\EntityFactory::class),
+            /*logger:*/ $this->createStub(\Psr\Log\LoggerInterface::class),
+            /*fetchStrategy:*/ $this->createStub(\Magento\Framework\Data\Collection\Db\FetchStrategyInterface::class),
+            /*eventManager:*/ $this->createStub(\Magento\Framework\Event\ManagerInterface::class),
+            /*entitySnapshot:*/ $this->createStub(\Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot::class),
+            /*itemOptionCollectionFactory:*/ $this->createStub(\Magento\Quote\Model\ResourceModel\Quote\Item\Option\CollectionFactory::class),
+            /*productCollectionFactory:*/ $this->createStub(\Magento\Catalog\Model\ResourceModel\Product\CollectionFactory::class),
+            /*quoteConfig:*/ $this->createStub(\Magento\Quote\Model\Quote\Config::class),
             /*connection:*/ $this->connection,
             /*resource:*/ $this->itemResource,
             /*storeManager:*/ $this->storeManager,
-            /*config:*/ $this->createMock(\Magento\Quote\Model\Config::class)
+            /*config:*/ $this->createStub(\Magento\Quote\Model\Config::class)
         );
     }
 }
